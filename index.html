@@ -452,7 +452,30 @@
     resize: vertical;
   }
 
-  .saved-indicator {
+  .collapsible-header {
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .collapsible-header:hover { background: #243660; }
+  .chassis-row {
+    display: grid;
+    grid-template-columns: 2fr 100px 2fr 28px;
+    gap: 8px;
+    margin-bottom: 6px;
+    align-items: center;
+  }
+  .labour-total-bar {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--navy);
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
     font-size: 11px;
     color: rgba(255,255,255,0.45);
     font-family: 'Courier New', monospace;
@@ -650,9 +673,7 @@
     <!-- VEHICLE EXTERIOR -->
     <div class="card" id="exteriorCard">
       <div class="card-header">Vehicle Exterior</div>
-      <div class="card-body">
-        <div id="exteriorRows"></div>
-      </div>
+      <div class="card-body"><div id="exteriorRows"></div></div>
     </div>
 
     <!-- UNDER BONNET -->
@@ -672,15 +693,7 @@
       <div class="card-header">Brakes &amp; Tyres</div>
       <div class="card-body" style="overflow-x:auto;">
         <table class="wheel-table" id="wheelsTable">
-          <thead>
-            <tr>
-              <th>Position</th>
-              <th>Tread</th>
-              <th>Pressure</th>
-              <th>Brakes</th>
-              <th>Notes</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Position</th><th>Tread</th><th>Pressure</th><th>Brakes</th><th>Notes</th></tr></thead>
           <tbody id="wheelsBody"></tbody>
         </table>
         <div style="margin-top:10px;">
@@ -692,27 +705,18 @@
       </div>
     </div>
 
-    <!-- INSPECTION FINDINGS -->
-    <div class="card" id="findingsCard">
-      <div class="card-header">Inspection Findings</div>
-      <div class="card-body">
-        <div class="col-header-row" style="grid-template-columns:2fr 120px 2fr 30px;">
-          <span>Component</span><span>Status</span><span>Notes</span><span></span>
-        </div>
-        <div id="findingsRows"></div>
-        <button class="btn-add-finding" onclick="addFinding('findings')">+ Add Inspection Finding</button>
+    <!-- CHASSIS & BODY (hidden on safety check) -->
+    <div class="card collapsible-card" id="chassisCard">
+      <div class="card-header collapsible-header" onclick="toggleSection('chassisBody','chassisChevron')">
+        Chassis &amp; Body
+        <span id="chassisChevron" style="float:right;transition:transform 0.2s;">▼</span>
       </div>
-    </div>
-
-    <!-- CHASSIS & BODY -->
-    <div class="card" id="chassisCard">
-      <div class="card-header">Chassis &amp; Body</div>
-      <div class="card-body">
-        <div class="col-header-row" style="grid-template-columns:2fr 120px 2fr 30px;">
-          <span>Component</span><span>Status</span><span>Notes</span><span></span>
-        </div>
-        <div id="chassisRows"></div>
-        <button class="btn-add-finding" onclick="addFinding('chassis')">+ Add Chassis / Body Item</button>
+      <div id="chassisBody" class="card-body">
+        <table class="wheel-table" style="width:100%;">
+          <thead><tr><th style="text-align:left;">Component</th><th>Status</th><th style="text-align:left;">Notes</th><th style="width:30px;"></th></tr></thead>
+          <tbody id="chassisRows"></tbody>
+        </table>
+        <button class="btn-add-finding" style="margin-top:8px;" onclick="addChassisRow()">+ Add Row</button>
       </div>
     </div>
 
@@ -720,106 +724,169 @@
     <div class="card" id="repairFindingsCard" style="display:none;">
       <div class="card-header">Repair Findings</div>
       <div class="card-body">
-        <div class="col-header-row" style="grid-template-columns:2fr 120px 2fr 30px;">
-          <span>Component</span><span>Status</span><span>Notes</span><span></span>
-        </div>
         <div id="repairFindingsRows"></div>
         <button class="btn-add-finding" onclick="addFinding('repairFindings')">+ Add Repair Finding</button>
       </div>
     </div>
 
-    <!-- WORK COMPLETED -->
-    <div class="card">
+    <!-- INSPECTION FINDINGS — collapsible -->
+    <div class="card collapsible-card" id="findingsCard" style="display:none;">
+      <div class="card-header collapsible-header" onclick="toggleSection('findingsBody','findingsChevron')">
+        Inspection Findings
+        <span id="findingsChevron" style="float:right;transition:transform 0.2s;">▼</span>
+      </div>
+      <div id="findingsBody" class="card-body">
+        <textarea id="findingsText" class="notes-multi" style="min-height:80px;" placeholder="Describe findings here – one item per line or free text..."></textarea>
+      </div>
+    </div>
+
+    <!-- FAULT & RECTIFICATION — collapsible -->
+    <div class="card collapsible-card" id="faultCard" style="display:none;">
+      <div class="card-header collapsible-header" onclick="toggleSection('faultBody','faultChevron')">
+        Fault &amp; Rectification
+        <span id="faultChevron" style="float:right;transition:transform 0.2s;">▼</span>
+      </div>
+      <div id="faultBody" class="card-body">
+        <textarea id="faultRect" class="notes-multi" style="min-height:80px;" placeholder="Fault found → what was done → outcome (one item per line)"></textarea>
+      </div>
+    </div>
+
+    <!-- WORK COMPLETED — always visible, auto-populated -->
+    <div class="card" id="workCard">
       <div class="card-header">Work Completed</div>
       <div class="card-body">
-        <div class="field-group" style="margin-bottom:12px;">
-          <label>Work Completed (one item per line)</label>
-          <textarea id="workCompleted" class="notes-multi" style="min-height:100px;" placeholder="A service performed – engine oil and filter replaced.&#10;Full inspection completed – see tables above for all findings."></textarea>
-        </div>
-        <div class="field-group" style="margin-bottom:12px;">
-          <label>Fault &amp; Rectification (leave blank if none)</label>
-          <textarea id="faultRect" class="notes-multi" placeholder="Fault found → what was done → outcome"></textarea>
-        </div>
-        <div style="margin-bottom:8px;">
-          <div class="parts-section-header" style="margin-bottom:8px;">Additional Notes <span style="font-weight:normal;color:var(--text-muted);font-size:11px;">(numbered advisory list)</span></div>
-          <div class="col-header-row additional-note-row" style="margin-bottom:4px;">
-            <span style="font-size:10px;color:var(--text-muted);">#</span>
-            <span style="font-size:10px;color:var(--text-muted);">Urgency</span>
-            <span style="font-size:10px;color:var(--text-muted);">Note</span>
-            <span></span>
-          </div>
-          <div id="additionalNotesRows"></div>
-          <button class="btn-add-labour" onclick="addAdditionalNote()" style="border-color:var(--amber);color:var(--amber);">+ Add Advisory Note</button>
+        <textarea id="workCompleted" class="notes-multi" style="min-height:100px;" placeholder="Work completed – auto-filled from report type and notes"></textarea>
+      </div>
+    </div>
+
+    <!-- ADDITIONAL NOTES — collapsible, orange -->
+    <div class="card collapsible-card" id="additionalCard" style="display:none;">
+      <div class="card-header collapsible-header" style="background:#b05a00;" onclick="toggleSection('additionalBody','additionalChevron')">
+        Additional Notes
+        <span id="additionalChevron" style="float:right;transition:transform 0.2s;">▼</span>
+      </div>
+      <div id="additionalBody" class="card-body">
+        <div style="font-size:11px;color:#6b7a99;margin-bottom:8px;">Numbered advisory list — shown in orange on the report</div>
+        <div id="additionalNotesRows"></div>
+        <button class="btn-add-labour" onclick="addAdditionalNote()" style="border-color:#b05a00;color:#b05a00;margin-top:4px;">+ Add Advisory Note</button>
+      </div>
+    </div>
+
+    <!-- COLLAPSIBLE SECTION BUTTONS -->
+    <div class="card" style="background:#f4f6fa;">
+      <div class="card-body" style="padding:12px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.7px;color:#6b7a99;font-family:'Courier New',monospace;margin-bottom:10px;">Add Sections</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+          <button class="btn-add-part" style="width:auto;" onclick="showCollapsible('findingsCard','findingsBody','findingsChevron')">+ Inspection Findings</button>
+          <button class="btn-add-part" style="width:auto;" onclick="showCollapsible('faultCard','faultBody','faultChevron')">+ Fault &amp; Rectification</button>
+          <button class="btn-add-part" style="width:auto;border-color:#b05a00;color:#b05a00;" onclick="showCollapsible('additionalCard','additionalBody','additionalChevron');addAdditionalNote()">+ Additional Notes</button>
         </div>
       </div>
     </div>
 
-    <!-- PARTS & INVENTORY -->
-    <div class="card">
-      <div class="card-header">Parts &amp; Inventory</div>
-      <div class="card-body">
-
-        <!-- Car Guys Stock -->
-        <div id="stockSection" style="display:none;">
-          <div class="parts-section-header">A) Car Guys Stock</div>
-          <div class="col-header-row parts-row stock" style="margin-bottom:4px;">
-            <span>Item / Part No.</span><span>Qty</span><span></span>
-          </div>
-          <div id="stockRows"></div>
-          <button class="btn-add-part" onclick="addPart('stock')" id="addStockBtn">+ Add Stock Item</button>
+    <!-- PARTS — collapsible sections -->
+    <div class="card collapsible-card" id="reimburseCard" style="display:none;">
+      <div class="card-header collapsible-header" onclick="toggleSection('reimburseBody','reimburseChevron')">
+        Parts – Reimbursement
+        <span id="reimburseChevron" style="float:right;">▼</span>
+      </div>
+      <div id="reimburseBody" class="card-body">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 80px 28px;gap:6px;margin-bottom:4px;">
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Item</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Part No.</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Supplier</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Cost</span>
+          <span></span>
         </div>
+        <div id="reimburseRows"></div>
+        <button class="btn-add-part" onclick="addPart('reimburse')" style="margin-top:4px;">+ Add Part</button>
+      </div>
+    </div>
 
-        <!-- Deductions -->
-        <div id="deductSection" style="display:none; margin-top:14px;">
-          <div class="parts-section-header">B) Deductions (Car Guys account → private customer)</div>
-          <div class="col-header-row parts-row reimburse" style="margin-bottom:4px;">
-            <span>Item</span><span>Part No.</span><span>Supplier</span><span>Qty</span><span>Cost (ex GST)</span><span></span>
-          </div>
-          <div id="deductRows"></div>
-          <button class="btn-add-part" onclick="addPart('deduct')" id="addDeductBtn">+ Add Deduction</button>
+    <div class="card collapsible-card" id="deductCard" style="display:none;">
+      <div class="card-header collapsible-header" onclick="toggleSection('deductBody','deductChevron')">
+        Parts – Deduction (from invoice)
+        <span id="deductChevron" style="float:right;">▼</span>
+      </div>
+      <div id="deductBody" class="card-body">
+        <div style="font-size:12px;color:#6b7a99;margin-bottom:8px;">Parts bought on Car Guys account – repayable deduction from invoice</div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 80px 28px;gap:6px;margin-bottom:4px;">
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Item</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Part No.</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Supplier</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Cost</span>
+          <span></span>
         </div>
+        <div id="deductRows"></div>
+        <button class="btn-add-part" onclick="addPart('deduct')" style="margin-top:4px;">+ Add Part</button>
+      </div>
+    </div>
 
-        <!-- Reimbursement -->
-        <div id="reimburseSection" style="display:none; margin-top:14px;">
-          <div class="parts-section-header">C) Parts – Reimbursement</div>
-          <div class="col-header-row parts-row reimburse" style="margin-bottom:4px;">
-            <span>Item</span><span>Part No.</span><span>Supplier</span><span>Qty</span><span>Cost (ex GST)</span><span></span>
-          </div>
-          <div id="reimburseRows"></div>
-          <button class="btn-add-part" onclick="addPart('reimburse')" id="addReimburseBtn">+ Add Reimbursement Part</button>
+    <div class="card collapsible-card" id="stockCard" style="display:none;">
+      <div class="card-header collapsible-header" onclick="toggleSection('stockBody','stockChevron')">
+        Car Guys Stock
+        <span id="stockChevron" style="float:right;">▼</span>
+      </div>
+      <div id="stockBody" class="card-body">
+        <div style="display:grid;grid-template-columns:2fr 60px 28px;gap:6px;margin-bottom:4px;">
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Item / Part No.</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Qty</span>
+          <span></span>
         </div>
+        <div id="stockRows"></div>
+        <button class="btn-add-part" onclick="addPart('stock')" style="margin-top:4px;">+ Add Stock Item</button>
+      </div>
+    </div>
 
-        <!-- Private parts -->
-        <div id="privatePartsSection" style="display:none; margin-top:14px;">
-          <div class="parts-section-header">Parts (at cost to customer)</div>
-          <div class="col-header-row parts-row private" style="margin-bottom:4px;">
-            <span>Item</span><span>Source</span><span>Qty</span><span>Cost</span><span></span>
-          </div>
-          <div id="privatePartsRows"></div>
-          <button class="btn-add-part" onclick="addPart('private')" id="addPrivatePartsBtn">+ Add Part</button>
+    <div class="card collapsible-card" id="privatePartsCard" style="display:none;">
+      <div class="card-header collapsible-header" onclick="toggleSection('privatePartsBody','privatePartsChevron')">
+        Parts (at cost to customer)
+        <span id="privatePartsChevron" style="float:right;">▼</span>
+      </div>
+      <div id="privatePartsBody" class="card-body">
+        <div style="display:grid;grid-template-columns:2fr 1fr 60px 80px 28px;gap:6px;margin-bottom:4px;">
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Item</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Source</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Qty</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Cost</span>
+          <span></span>
         </div>
+        <div id="privatePartsRows"></div>
+        <button class="btn-add-part" onclick="addPart('private')" style="margin-top:4px;">+ Add Part</button>
+      </div>
+    </div>
 
-        <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
-          <button class="btn-add-part" style="width:auto;" onclick="showStockSection()">+ Car Guys Stock</button>
-          <button class="btn-add-part" style="width:auto;" onclick="showDeductSection()">+ Deduction</button>
-          <button class="btn-add-part" style="width:auto;" onclick="showReimburseSection()">+ Reimbursement</button>
-          <button class="btn-add-part" style="width:auto; border-color:var(--amber);color:var(--amber);" onclick="showPrivatePartsSection()">+ Private Parts</button>
+    <!-- PARTS ADD BUTTONS -->
+    <div class="card" style="background:#f4f6fa;">
+      <div class="card-body" style="padding:12px;">
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.7px;color:#6b7a99;font-family:'Courier New',monospace;margin-bottom:10px;">Add Parts</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;" id="partsButtonsRow">
+          <button class="btn-add-part" style="width:auto;" id="btnAddReimburse" onclick="showCollapsible('reimburseCard','reimburseBody','reimburseChevron');addPart('reimburse')">+ Reimbursement</button>
+          <button class="btn-add-part" style="width:auto;" id="btnAddDeduct" onclick="showCollapsible('deductCard','deductBody','deductChevron');addPart('deduct')">+ Deduction</button>
+          <button class="btn-add-part" style="width:auto;" id="btnAddStock" onclick="showCollapsible('stockCard','stockBody','stockChevron');addPart('stock')">+ Car Guys Stock</button>
+          <button class="btn-add-part" style="width:auto;border-color:var(--amber);color:var(--amber);" id="btnAddPrivate" onclick="showCollapsible('privatePartsCard','privatePartsBody','privatePartsChevron');addPart('private')">+ Private Parts</button>
         </div>
       </div>
     </div>
 
-    <!-- LABOUR & INVOICE -->
+    <!-- LABOUR -->
     <div class="card">
-      <div class="card-header">Labour &amp; Invoice</div>
+      <div class="card-header">Labour</div>
       <div class="card-body">
-        <div class="col-header-row labour-row" style="margin-bottom:4px;">
-          <span>Description</span><span>Hours</span><span></span>
+        <div style="display:grid;grid-template-columns:3fr 70px 28px;gap:8px;margin-bottom:4px;">
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Description</span>
+          <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;text-align:center;">Hours</span>
+          <span></span>
         </div>
         <div id="labourRows"></div>
-        <button class="btn-add-labour" onclick="addLabourLine()">+ Add Labour Line</button>
-        <div style="margin-top:12px;" id="quickChecksRow">
+        <button class="btn-add-labour" onclick="addLabourLine()" style="margin-top:4px;">+ Add Labour Line</button>
+        <div id="labourTotal" style="display:none;margin-top:10px;padding:10px 12px;background:#1a2744;border-radius:8px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="color:white;font-size:13px;font-weight:bold;">Total Labour</span>
+          <span id="labourTotalAmt" style="color:#e8a020;font-size:15px;font-weight:bold;"></span>
+        </div>
+        <div style="margin-top:12px;">
           <div class="field-group">
-            <label>Other vehicles – quick checks (if applicable)</label>
+            <label>Quick checks note (if applicable)</label>
             <input type="text" id="quickChecksDesc" placeholder="e.g. Quick diagnosis checks (3 vehicles)">
           </div>
         </div>
@@ -1152,15 +1219,21 @@ function parseNotes(raw) {
     if (ratedM && testedM) {
       rated = parseInt(ratedM[1]);
       tested = parseInt(testedM[1]);
-    } else if (line.match(/battery/i)) {
-      const nums = line.match(/\b(\d{3,4})\b/g);
-      if (nums && nums.length >= 2) {
-        const a = parseInt(nums[0]), b = parseInt(nums[1]);
-        // "higher than rated" means tested > rated, so swap the max/min rule
-        if (line.match(/higher\s*than\s*rated/i)) {
-          rated = Math.min(a,b); tested = Math.max(a,b);
-        } else {
-          rated = Math.max(a,b); tested = Math.min(a,b);
+    } else {
+      // Slash format: 470/560cca — lower/higher or higher/lower
+      const slashM = line.match(/(\d{3,4})\s*\/\s*(\d{3,4})\s*cca/i);
+      if (slashM) {
+        const a = parseInt(slashM[1]), b = parseInt(slashM[2]);
+        rated = Math.max(a,b); tested = Math.min(a,b);
+      } else if (line.match(/battery/i)) {
+        const nums = line.match(/\b(\d{3,4})\b/g);
+        if (nums && nums.length >= 2) {
+          const a = parseInt(nums[0]), b = parseInt(nums[1]);
+          if (line.match(/higher\s*than\s*rated/i)) {
+            rated = Math.min(a,b); tested = Math.max(a,b);
+          } else {
+            rated = Math.max(a,b); tested = Math.min(a,b);
+          }
         }
       }
     }
@@ -1177,7 +1250,7 @@ function parseNotes(raw) {
 
   // ── EXTERIOR ITEMS ──
   const allLines = raw.toLowerCase();
-  const allOk = allLines.match(/(all|everything|windows wipers|all above|all items)\s*(ok|good|fine|clear)/i);
+  const allOk = allLines.match(/(all|everything|windows wipers|all above|all items)\s*(ok|okay|good|fine|clear)/i);
   const extKeys = {
     lights: ['light','headlight','tail light','indicators'],
     wipers: ['wiper'],
@@ -1305,26 +1378,21 @@ function parseNotes(raw) {
   if (raw.match(/wheel\s*alignment.*strongly|alignment.*strongly/i)) result.tyreAdvisory = '⚠ Wheel alignment strongly recommended.';
 
   // ── LABOUR ──
-  // Pattern: "2hrs rocker cover" / "rocker cover 2hrs" / "4 hours timing cover" / "2.5hrs" (generic)
-  // Excludes lines that are clearly about inspection items not labour
   const labourExclude = /spare|pressure|psi|tyre|tread|brake(?!\s*pad|\s*shoe|\s*disc|\s*drum|\s*r&r)|coolant|battery|glycol|odo|date|rego|customer|model|make/i;
   lines.forEach(line => {
     const ll = line.toLowerCase();
-    // Skip lines that are clearly notes not labour
-    if (ll.match(/^(rego|date|model|make|vehicle|customer|odo|tf|tr|bf|br|no dtc|dtc|coolant|battery|rated|tested|glycol|levels|belt)/i)) return;
+    if (ll.match(/^(rego|date|model|make|vehicle|customer|odo|tf|tr|bf|br|no dtc|dtc|coolant|battery|rated|tested|glycol|levels|belt|hose|p\/s)/i)) return;
+
+    // "total 15 hours" or "total 15hrs"
+    const totalM = line.match(/^total\s+(\d+(?:\.\d+)?)\s*h(?:rs?|ours?)?/i);
+    if (totalM) { result.labour.push({ desc: 'Labour', hrs: parseFloat(totalM[1]) }); return; }
 
     const m = line.match(/^(\d+(?:\.\d+)?)\s*h(?:rs?|ours?)\s+(.+)/i) ||
               line.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*h(?:rs?|ours?)\s*$/i);
     if (m) {
       let hrs, desc;
-      if (line.match(/^\d+(?:\.\d+)?\s*h/i)) {
-        hrs = parseFloat(m[1]);
-        desc = m[2].trim();
-      } else {
-        desc = m[1].trim();
-        hrs = parseFloat(m[2]);
-      }
-      // Clean up desc — remove leading/trailing punctuation
+      if (line.match(/^\d+(?:\.\d+)?\s*h/i)) { hrs = parseFloat(m[1]); desc = m[2].trim(); }
+      else { desc = m[1].trim(); hrs = parseFloat(m[2]); }
       desc = desc.replace(/^[-–·\s]+|[-–·\s]+$/g, '').trim();
       if (desc.length > 1 && !desc.match(labourExclude)) {
         result.labour.push({ desc: desc.charAt(0).toUpperCase() + desc.slice(1), hrs });
@@ -1333,13 +1401,11 @@ function parseNotes(raw) {
       }
       return;
     }
-    // plain "2.5hrs" or "2.5 hours" standalone
     const plain = line.match(/^(\d+(?:\.\d+)?)\s*h(?:rs?|ours?)?\s*$/i);
     if (plain) { result.labour.push({ desc: 'Labour', hrs: parseFloat(plain[1]) }); return; }
   });
 
   // ── WORK COMPLETED ──
-  // Start with report-type standard line
   const rt = document.getElementById('reportType').value;
   if (rt === 'service' || rt === 'service_repair') {
     result.workCompleted.push('A service performed – engine oil and filter replaced. Full inspection completed – see tables above for all findings.');
@@ -1347,13 +1413,13 @@ function parseNotes(raw) {
     result.workCompleted.push('Full inspection completed – see tables above for all findings.');
   } else if (rt === 'safety' || rt === 'safety_repair') {
     result.workCompleted.push('Safety check performed.');
+  } else if (rt === 'repair') {
+    result.workCompleted.push('Repair completed – see findings above.');
   }
 
-  // Pick up explicit action lines — expanded verb list
   const actionVerbs = /^(replaced|removed|refitted|repaired|installed|fitted|changed|flushed|topped|adjusted|tightened|washed|cleaned|diagnosed|tested|scanned|reset|updated|recalibrated|programmed|charged|recharged|bled|sealed|torqued|lubricated|inspected and)/i;
   lines.forEach(line => {
     if (line.match(actionVerbs)) {
-      // Don't duplicate the standard service line
       if (!line.match(/engine oil|oil filter/i) || rt !== 'service') {
         result.workCompleted.push(line);
       }
@@ -1370,40 +1436,49 @@ function parseAndPreview() {
   const notes = document.getElementById('notesInput').value.trim();
   if (!notes) { toast('Please enter your job notes first.'); return; }
 
-  // Fix date
   const dateEl = document.getElementById('jobDate');
   if (dateEl.value) dateEl.value = fixDate(dateEl.value);
   else dateEl.value = todayDate();
 
   const parsed = parseNotes(notes);
-
   const repairOnly = isRepairOnly();
+  const rt = document.getElementById('reportType').value;
+  const isSafety = rt === 'safety' || rt === 'safety_repair';
 
   // Show/hide inspection tables
-  ['exteriorCard','bonnetCard','wheelsCard','findingsCard','chassisCard'].forEach(id => {
+  ['exteriorCard','bonnetCard','wheelsCard'].forEach(id => {
     document.getElementById(id).style.display = repairOnly ? 'none' : 'block';
   });
   document.getElementById('repairFindingsCard').style.display = repairOnly ? 'block' : 'none';
 
-  // Sections visibility for parts
-  const cg = isCarGuys();
-  document.getElementById('stockSection').style.display = 'none';
-  document.getElementById('deductSection').style.display = 'none';
-  document.getElementById('reimburseSection').style.display = 'none';
-  document.getElementById('privatePartsSection').style.display = !cg ? 'block' : 'none';
+  // Chassis — hidden on safety check, shown otherwise (except repair-only)
+  const chassisCard = document.getElementById('chassisCard');
+  chassisCard.style.display = (repairOnly || isSafety) ? 'none' : 'block';
 
-  // Build exterior rows
+  // Collapsible sections — all hidden by default
+  ['findingsCard','faultCard','additionalCard','reimburseCard','deductCard','stockCard','privatePartsCard'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+
+  // Show private parts section if not Car Guys
+  if (!isCarGuys()) {
+    showCollapsible('privatePartsCard','privatePartsBody','privatePartsChevron');
+  }
+
+  // Build UI sections
   buildExteriorUI(parsed.exterior);
   buildBonnetUI(parsed.bonnet);
   buildWheelsUI(parsed.wheels, parsed.tyreAdvisory);
-  buildFindingsUI('findings', parsed.findings);
-  buildFindingsUI('chassis', parsed.chassis);
+  buildChassisUI(parsed);
   buildFindingsUI('repairFindings', parsed.repairFindings);
   buildLabourUI(parsed.labour);
 
-  // Work completed
+  // Work completed — always visible, auto-filled
   document.getElementById('workCompleted').value = parsed.workCompleted.join('\n');
-  document.getElementById('faultRect').value = parsed.faultRect || '';
+
+  // Clear findings and fault text
+  document.getElementById('findingsText').value = '';
+  document.getElementById('faultRect').value = '';
 
   // Flags
   buildFlags(parsed);
@@ -1624,9 +1699,10 @@ function buildLabourUI(labourItems) {
   } else {
     addLabourRow({ desc: 'Labour', hrs: '' });
   }
+  updateLabourTotal();
 }
 
-function addLabourLine() { addLabourRow({ desc: '', hrs: '' }); }
+function addLabourLine() { addLabourRow({ desc: '', hrs: '' }); updateLabourTotal(); }
 
 function addLabourRow(item) {
   const container = document.getElementById('labourRows');
@@ -1634,9 +1710,26 @@ function addLabourRow(item) {
   div.className = 'labour-row';
   div.innerHTML = `
     <input type="text" placeholder="Labour description" value="${escHtml(item.desc||'')}">
-    <input type="number" step="0.5" placeholder="Hrs" value="${item.hrs||''}" style="text-align:center;">
-    <button class="btn-remove" onclick="this.parentElement.remove()">×</button>`;
+    <input type="number" step="0.5" placeholder="Hrs" value="${item.hrs||''}" style="text-align:center;" oninput="updateLabourTotal()">
+    <button class="btn-remove" onclick="this.parentElement.remove();updateLabourTotal()">×</button>`;
   container.appendChild(div);
+}
+
+function updateLabourTotal() {
+  const rate = isCarGuys() ? 50 : 70;
+  const rows = document.getElementById('labourRows').children;
+  let total = 0, count = 0;
+  for (const row of rows) {
+    const hrs = parseFloat(row.querySelectorAll('input')[1]?.value) || 0;
+    if (hrs > 0) { total += hrs * rate; count++; }
+  }
+  const bar = document.getElementById('labourTotal');
+  const amt = document.getElementById('labourTotalAmt');
+  if (bar && amt) {
+    bar.style.display = count > 0 ? 'flex' : 'none';
+    const totalHrs = Array.from(rows).reduce((s,r) => s + (parseFloat(r.querySelectorAll('input')[1]?.value)||0), 0);
+    amt.textContent = `${totalHrs} hrs = $${total.toFixed(2)} ex GST`;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1661,51 +1754,102 @@ function addAdditionalNote(item) {
 // ═══════════════════════════════════════════════════════════
 //  PARTS UI
 // ═══════════════════════════════════════════════════════════
-function showStockSection() {
-  document.getElementById('stockSection').style.display = 'block';
-  addPart('stock');
+//  COLLAPSIBLE SECTIONS
+// ═══════════════════════════════════════════════════════════
+function toggleSection(bodyId, chevronId) {
+  const body = document.getElementById(bodyId);
+  const chev = document.getElementById(chevronId);
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  if (chev) chev.style.transform = open ? 'rotate(-90deg)' : 'rotate(0deg)';
 }
-function showDeductSection() {
-  document.getElementById('deductSection').style.display = 'block';
-  addPart('deduct');
+
+function showCollapsible(cardId, bodyId, chevronId) {
+  document.getElementById(cardId).style.display = 'block';
+  document.getElementById(bodyId).style.display = 'block';
+  const chev = document.getElementById(chevronId);
+  if (chev) chev.style.transform = 'rotate(0deg)';
 }
-function showReimburseSection() {
-  document.getElementById('reimburseSection').style.display = 'block';
-  addPart('reimburse');
+
+// ═══════════════════════════════════════════════════════════
+//  CHASSIS & BODY
+// ═══════════════════════════════════════════════════════════
+const CHASSIS_FIXED = [
+  'Transmission',
+  'Differentials',
+  'Tailshaft / Prop Shaft / Centre Bearing',
+  'Driveshafts & CV Boots',
+  'Suspension – Front',
+  'Suspension – Rear'
+];
+
+function buildChassisUI(parsed) {
+  const tbody = document.getElementById('chassisRows');
+  tbody.innerHTML = '';
+  // Check for n/a hints in notes for hiding rows
+  const notesRaw = document.getElementById('notesInput').value.toLowerCase();
+  CHASSIS_FIXED.forEach(label => {
+    // Hide transmission if 'trans n/a', hide diff if 'diff n/a', etc.
+    const key = label.toLowerCase().replace(/[^a-z]/g,'');
+    const naHints = { transmission: /trans\s*n\/a|no\s*trans/i, differentials: /diff\s*n\/a|no\s*diff|2wd/i, tailshaft: /tail\s*n\/a|no\s*tail|fwd/i, driveshafts: /cv\s*n\/a|no\s*cv/i };
+    const hideKey = Object.keys(naHints).find(k => label.toLowerCase().includes(k));
+    if (hideKey && naHints[hideKey].test(notesRaw)) return; // skip hidden rows
+    addChassisTableRow(tbody, label, 'unknown', '');
+  });
 }
-function showPrivatePartsSection() {
-  document.getElementById('privatePartsSection').style.display = 'block';
-  addPart('private');
+
+function addChassisRow() {
+  const tbody = document.getElementById('chassisRows');
+  addChassisTableRow(tbody, '', 'unknown', '');
+}
+
+function addChassisTableRow(tbody, label, status, notes) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" value="${escHtml(label)}" placeholder="Component" style="width:100%;font-size:12px;padding:5px;"></td>
+    <td>
+      <select style="font-size:11px;padding:4px;width:100%;">
+        <option value="unknown" ${status==='unknown'?'selected':''}>— ?</option>
+        <option value="OK" ${status==='OK'?'selected':''}>✓ OK</option>
+        <option value="ADVISORY" ${status==='ADVISORY'?'selected':''}>Advisory</option>
+        <option value="CRITICAL" ${status==='CRITICAL'?'selected':''}>Critical</option>
+      </select>
+    </td>
+    <td><input type="text" value="${escHtml(notes)}" placeholder="Notes" style="width:100%;font-size:12px;padding:5px;"></td>
+    <td><button class="btn-remove" onclick="this.closest('tr').remove()">×</button></td>`;
+  tbody.appendChild(tr);
 }
 
 function addPart(type) {
   const containerId = { stock:'stockRows', deduct:'deductRows', reimburse:'reimburseRows', private:'privatePartsRows' }[type];
   const container = document.getElementById(containerId);
   const div = document.createElement('div');
-  div.className = `parts-row ${type}`;
   if (type === 'stock') {
+    div.style.cssText = 'display:grid;grid-template-columns:2fr 60px 28px;gap:6px;margin-bottom:6px;align-items:center;';
     div.innerHTML = `
-      <input type="text" placeholder="Item / Part No.">
-      <input type="number" placeholder="Qty" style="text-align:center;">
+      <input type="text" placeholder="Item / Part No." style="font-size:13px;">
+      <input type="number" placeholder="Qty" style="text-align:center;font-size:13px;">
       <button class="btn-remove" onclick="this.parentElement.remove()">×</button>`;
   } else if (type === 'deduct' || type === 'reimburse') {
+    div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr 80px 28px;gap:6px;margin-bottom:6px;align-items:center;';
     div.innerHTML = `
-      <input type="text" placeholder="Item">
-      <input type="text" placeholder="Part No.">
-      <input type="text" placeholder="Supplier">
-      <input type="number" placeholder="Qty" style="text-align:center;">
-      <input type="number" step="0.01" placeholder="0.00">
+      <input type="text" placeholder="Item" style="font-size:13px;">
+      <input type="text" placeholder="Part No." style="font-size:13px;">
+      <input type="text" placeholder="Supplier" style="font-size:13px;">
+      <input type="number" step="0.01" placeholder="0.00" style="font-size:13px;" oninput="updateLabourTotal()">
       <button class="btn-remove" onclick="this.parentElement.remove()">×</button>`;
   } else if (type === 'private') {
+    div.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 60px 80px 28px;gap:6px;margin-bottom:6px;align-items:center;';
     div.innerHTML = `
-      <input type="text" placeholder="Item">
-      <input type="text" placeholder="Source">
-      <input type="number" placeholder="Qty" style="text-align:center;">
-      <input type="number" step="0.01" placeholder="0.00">
+      <input type="text" placeholder="Item" style="font-size:13px;">
+      <input type="text" placeholder="Source" style="font-size:13px;">
+      <input type="number" placeholder="Qty" style="text-align:center;font-size:13px;">
+      <input type="number" step="0.01" placeholder="0.00" style="font-size:13px;">
       <button class="btn-remove" onclick="this.parentElement.remove()">×</button>`;
   }
   container.appendChild(div);
 }
+
 
 // ═══════════════════════════════════════════════════════════
 //  FLAGS
@@ -1861,16 +2005,28 @@ function collectData() {
     });
   });
 
-  // Findings
-  ['findings','chassis','repairFindings'].forEach(section => {
-    const rows = document.getElementById(section + 'Rows').children;
-    for (const row of rows) {
-      const inputs = row.querySelectorAll('input,select');
-      if (inputs[0] && inputs[0].value) {
-        data[section].push({ component: inputs[0].value, status: inputs[1].value, notes: inputs[2].value });
-      }
+  // Findings — now free text
+  data.findingsText = (document.getElementById('findingsText') ? document.getElementById('findingsText').value.trim() : '');
+  data.faultRect = (document.getElementById('faultRect') ? document.getElementById('faultRect').value.trim() : '');
+
+  // Chassis — read from table rows
+  const chassisRows = document.getElementById('chassisRows') ? document.getElementById('chassisRows').querySelectorAll('tr') : [];
+  chassisRows.forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const sel = row.querySelector('select');
+    if (inputs[0] && inputs[0].value && sel && sel.value !== 'unknown') {
+      data.chassis.push({ component: inputs[0].value, status: sel.value, notes: inputs[1] ? inputs[1].value : '' });
     }
   });
+
+  // Repair findings (old table still used for repair-only)
+  const repairFindingsRows = document.getElementById('repairFindingsRows') ? document.getElementById('repairFindingsRows').children : [];
+  for (const row of repairFindingsRows) {
+    const inputs = row.querySelectorAll('input,select');
+    if (inputs[0] && inputs[0].value) {
+      data.repairFindings.push({ component: inputs[0].value, status: inputs[1].value, notes: inputs[2].value });
+    }
+  }
 
   // Additional notes
   const noteRows = document.getElementById('additionalNotesRows').children;
@@ -1889,29 +2045,29 @@ function collectData() {
     }
   }
 
-  // Parts
+  // Parts — updated selectors for new structure
   const stockRows = document.getElementById('stockRows').children;
   for (const row of stockRows) {
     const inputs = row.querySelectorAll('input');
-    if (inputs[0] && inputs[0].value) data.stock.push({ item: inputs[0].value, qty: inputs[1].value });
+    if (inputs[0] && inputs[0].value) data.stock.push({ item: inputs[0].value, qty: inputs[1] ? inputs[1].value : '1' });
   }
 
   const deductRows = document.getElementById('deductRows').children;
   for (const row of deductRows) {
     const inputs = row.querySelectorAll('input');
-    if (inputs[0] && inputs[0].value) data.deduct.push({ item: inputs[0].value, partNo: inputs[1].value, supplier: inputs[2].value, qty: inputs[3].value, cost: parseFloat(inputs[4].value)||0 });
+    if (inputs[0] && inputs[0].value) data.deduct.push({ item: inputs[0].value, partNo: inputs[1]?inputs[1].value:'', supplier: inputs[2]?inputs[2].value:'', qty: '1', cost: parseFloat(inputs[3]?inputs[3].value:0)||0 });
   }
 
   const reimburseRows = document.getElementById('reimburseRows').children;
   for (const row of reimburseRows) {
     const inputs = row.querySelectorAll('input');
-    if (inputs[0] && inputs[0].value) data.reimburse.push({ item: inputs[0].value, partNo: inputs[1].value, supplier: inputs[2].value, qty: inputs[3].value, cost: parseFloat(inputs[4].value)||0 });
+    if (inputs[0] && inputs[0].value) data.reimburse.push({ item: inputs[0].value, partNo: inputs[1]?inputs[1].value:'', supplier: inputs[2]?inputs[2].value:'', qty: '1', cost: parseFloat(inputs[3]?inputs[3].value:0)||0 });
   }
 
   const ppRows = document.getElementById('privatePartsRows').children;
   for (const row of ppRows) {
     const inputs = row.querySelectorAll('input');
-    if (inputs[0] && inputs[0].value) data.privateParts.push({ item: inputs[0].value, source: inputs[1].value, qty: inputs[2].value, cost: parseFloat(inputs[3].value)||0 });
+    if (inputs[0] && inputs[0].value) data.privateParts.push({ item: inputs[0].value, source: inputs[1]?inputs[1].value:'', qty: inputs[2]?inputs[2].value:'1', cost: parseFloat(inputs[3]?inputs[3].value:0)||0 });
   }
 
   return data;
@@ -2140,23 +2296,14 @@ function generatePDF() {
     });
   }
 
-  // ── INSPECTION FINDINGS ──
-  if (!d.isRepairOnly && d.findings.length > 0) {
-    const fBody = [
-      [{ text:'INSPECTION FINDINGS', colSpan:3, ...sectionHeader('INSPECTION FINDINGS') },{},{}],
-      [colHeader('COMPONENT','left'), colHeader('STATUS'), colHeader('NOTES','left')]
-    ];
-    d.findings.forEach((f,i) => {
-      const badge = statusBadgePDF(f.status);
-      fBody.push([
-        { ...dataCell(f.component,{bold:true}), fillColor:rowBg(i) },
-        { text:badge.text, bold:true, fontSize:9, color:badge.color, fillColor:badge.fillColor, alignment:'center', margin:[3,3,3,3] },
-        { ...dataCell(f.notes), fillColor:rowBg(i) }
-      ]);
-    });
+  // ── INSPECTION FINDINGS (free text) ──
+  if (!d.isRepairOnly && d.findingsText) {
+    const findLines = d.findingsText.split('\n').filter(Boolean);
+    const fStack = [{ text:'INSPECTION FINDINGS', bold:true, color:C.white, fillColor:C.navy, fontSize:10, margin:[4,4,4,4] }];
+    findLines.forEach(line => fStack.push({ text:'• '+line, fontSize:9, color:C.navy, margin:[4,2,4,2] }));
     content.push({
-      table:{ widths:[120,70,'*'], body:fBody },
-      layout:{ hLineWidth:()=>0.3, vLineWidth:()=>0, hLineColor:()=>C.grey },
+      table:{ widths:['*'], body:[[{ stack:fStack }]] },
+      layout:{ hLineWidth:()=>0, vLineWidth:()=>0 },
       margin:[0,0,0,10]
     });
   }
@@ -2176,7 +2323,7 @@ function generatePDF() {
       ]);
     });
     content.push({
-      table:{ widths:[120,70,'*'], body:cBody },
+      table:{ widths:[160,70,'*'], body:cBody },
       layout:{ hLineWidth:()=>0.3, vLineWidth:()=>0, hLineColor:()=>C.grey },
       margin:[0,0,0,10]
     });
@@ -2203,29 +2350,28 @@ function generatePDF() {
     });
   }
 
+  // ── FAULT & RECTIFICATION ──
+  const faultLines = d.faultRect ? d.faultRect.split('\n').filter(Boolean) : [];
+
   // ── WORK COMPLETED ──
-  const wcItems = [];
-  wcItems.push({ text: 'WORK COMPLETED', bold:true, color:C.white, fillColor:C.navy, fontSize:10, margin:[4,4,4,4] });
+  const wcStack = [];
+  wcStack.push({ text: 'WORK COMPLETED', bold:true, color:C.white, fillColor:C.navy, fontSize:10, margin:[4,4,4,4] });
   if (d.workCompleted.length > 0) {
-    d.workCompleted.forEach(line => {
-      wcItems.push({ text:'• ' + line, fontSize:9, color:C.navy, margin:[4,2,4,2] });
-    });
+    d.workCompleted.forEach(line => wcStack.push({ text:'• '+line, fontSize:9, color:C.navy, margin:[4,2,4,2] }));
   }
-  if (d.faultRect) {
-    wcItems.push({ text: 'Fault & Rectification', bold:true, color:C.navy, fontSize:9, decoration:'underline', margin:[4,8,4,2] });
-    d.faultRect.split('\n').filter(Boolean).forEach(line => {
-      wcItems.push({ text:'• ' + line, fontSize:9, color:C.navy, margin:[4,2,4,2] });
-    });
+  if (faultLines.length > 0) {
+    wcStack.push({ text:'Fault & Rectification', bold:true, color:C.navy, fontSize:9, decoration:'underline', margin:[4,8,4,2] });
+    faultLines.forEach(line => wcStack.push({ text:'• '+line, fontSize:9, color:C.navy, margin:[4,2,4,2] }));
   }
   if (d.additionalNotes.length > 0) {
-    wcItems.push({ text: 'Additional Notes', bold:true, color:C.navy, fontSize:9, decoration:'underline', margin:[4,8,4,2] });
-    d.additionalNotes.forEach((note, i) => {
+    wcStack.push({ text:'Additional Notes', bold:true, color:C.navy, fontSize:9, decoration:'underline', margin:[4,8,4,2] });
+    d.additionalNotes.forEach((note,i) => {
       const isUrgent = note.urgency === 'red';
-      wcItems.push({ text:`(${i+1}) ${note.note}`, fontSize:9, color: isUrgent ? C.red : '#7a4a00', bold: isUrgent, margin:[4,2,4,2] });
+      wcStack.push({ text:`(${i+1}) ${note.note}`, fontSize:9, color: isUrgent ? C.red : '#b05a00', bold: isUrgent, margin:[4,2,4,2] });
     });
   }
   content.push({
-    table:{ widths:['*'], body:[[{ stack:wcItems, margin:[0,0,0,0] }]] },
+    table:{ widths:['*'], body:[[{ stack:wcStack }]] },
     layout:{ hLineWidth:()=>0, vLineWidth:()=>0 },
     margin:[0,0,0,10]
   });
@@ -2361,6 +2507,15 @@ function generatePDF() {
       invBody.push([{ text: d.quickChecksDesc, colSpan:4, fontSize:8, color:'#b07000', italics:true, fillColor:C.amberLight, margin:[8,2,4,2] },{},{},{}]);
     }
   });
+  // Total labour row — only if more than one labour line
+  if (d.labour.length > 1) {
+    const totalHrs = d.labour.reduce((s,l) => s+l.hrs, 0);
+    invBody.push([
+      { text:'Total Labour', colSpan:2, bold:true, fontSize:9, color:C.navy, fillColor:'#e8eef8', margin:[4,4,4,4] },{},
+      { text:`${totalHrs} hrs`, bold:true, fontSize:9, color:C.navy, fillColor:'#e8eef8', alignment:'center', margin:[3,4,3,4] },
+      { text:'$'+labourSubtotal.toFixed(2), bold:true, fontSize:9, color:C.navy, fillColor:'#e8eef8', alignment:'right', margin:[3,4,3,4] }
+    ]);
+  }
 
   let rowIdx = d.labour.length;
 
