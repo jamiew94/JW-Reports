@@ -10,6 +10,7 @@
 <title>JW Reports · Jamie Watson</title>
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' rx='40' fill='%231a2744'/%3E%3Ctext x='90' y='115' font-family='Georgia,serif' font-size='80' font-weight='bold' fill='%23e8a020' text-anchor='middle'%3EJW%3C/text%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer onload="initGDrive()"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 <style>
 :root{--navy:#1a2744;--navy-mid:#2a3f6f;--navy-light:#3d5a9e;--amber:#e8a020;--amber-light:#fef3dc;--red:#c0392b;--red-light:#fdecea;--green:#1a7a3c;--green-light:#e8f5ed;--grey-bg:#f4f6fa;--grey-border:#dde2ed;--white:#ffffff;--text:#1a2744;--text-muted:#6b7a99;--radius:10px;--shadow:0 2px 16px rgba(26,39,68,0.10);}
@@ -156,9 +157,12 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
   <button class="menu-item" onclick="exportCustomers();toggleMenu()">⬇ Export Customers</button>
   <button class="menu-item" onclick="document.getElementById('importFileCustomers').click();toggleMenu()">⬆ Import Customers</button>
   <div style="height:1px;background:#eee;margin:2px 0;"></div>
+  <button class="menu-item" onclick="connectGDrive();toggleMenu()">☁ Connect Google Drive</button>
+  <div id="gdriveStatus" style="padding:2px 18px 7px;font-size:10px;color:#aab2c5;">⚪ Drive not connected</div>
+  <div style="height:1px;background:#eee;margin:2px 0;"></div>
   <button class="menu-item" style="color:#c0392b;" onclick="clearAll();toggleMenu()">✕ Clear All</button>
   <div style="height:1px;background:#eee;margin:2px 0;"></div>
-  <div style="padding:7px 18px 8px;font-size:10px;color:#aab2c5;font-family:'Courier New',monospace;text-align:center;">Build: 16/6/26</div>
+  <div style="padding:7px 18px 8px;font-size:10px;color:#aab2c5;font-family:'Courier New',monospace;text-align:center;">Build: 18/6/26</div>
 </div>
 <input type="file" id="importFileMerge" accept=".json" style="display:none;" onchange="importBackup(event,'merge')">
 <input type="file" id="importFileOverwrite" accept=".json" style="display:none;" onchange="importBackup(event,'overwrite')">
@@ -610,6 +614,109 @@ const EXTERIOR_ITEMS=[{key:'lights',label:'Lights'},{key:'wipers',label:'Wipers'
 // ═══════════════════════════════════════════
 let jobPhotos=[];
 let sessionInvoiceNumber=null;
+
+// ═══════════════════════════════════════════
+//  GOOGLE DRIVE SYNC
+// ═══════════════════════════════════════════
+const GDRIVE_CLIENT_ID='849772361417-f1jk25n49kjdaospud0c2trekc7r7j0h.apps.googleusercontent.com';
+const GDRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
+const GDRIVE_FOLDERS={carGuysNew:'1Mgix5FOWbEXEUMCla9PY9dYhPdn8vNWh',privateRoot:'1pYQIT8EiirMoOeFAL5Spq-J235mOYlMr',adminBackups:'1fX0xbayxVU5U4gKQF6MWUqKUaqxZwATD'};
+let gDriveTokenClient=null,gDriveAccessToken=null,gDriveTokenExpiry=0;
+
+function initGDrive(){
+  if(!window.google||!window.google.accounts){return;}
+  gDriveTokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:GDRIVE_CLIENT_ID,
+    scope:GDRIVE_SCOPE,
+    callback:(resp)=>{
+      if(resp&&resp.access_token){
+        gDriveAccessToken=resp.access_token;
+        gDriveTokenExpiry=Date.now()+((resp.expires_in||3600)*1000)-60000;
+        toast('✓ Google Drive connected');
+      }else{
+        toast('Drive connection cancelled or failed.');
+      }
+      updateGDriveStatus();
+    }
+  });
+  updateGDriveStatus();
+}
+
+function connectGDrive(){
+  if(!gDriveTokenClient){toast('Google sign-in still loading — try again in a sec.');return;}
+  gDriveTokenClient.requestAccessToken({prompt:''});
+}
+
+function updateGDriveStatus(){
+  const el=document.getElementById('gdriveStatus');
+  if(!el)return;
+  const valid=gDriveAccessToken&&Date.now()<gDriveTokenExpiry;
+  el.textContent=valid?'🟢 Drive connected':'⚪ Drive not connected — tap to connect';
+}
+
+function getGDriveToken(){
+  return (gDriveAccessToken&&Date.now()<gDriveTokenExpiry)?gDriveAccessToken:null;
+}
+
+async function gdriveFindFolder(name,parentId,token){
+  const safeName=name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const q=encodeURIComponent(`name='${safeName}' and '${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
+  const res=await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`,{headers:{Authorization:'Bearer '+token}});
+  if(!res.ok)throw new Error('Drive search failed: '+res.status);
+  const data=await res.json();
+  return (data.files&&data.files.length)?data.files[0].id:null;
+}
+
+async function gdriveCreateFolder(name,parentId,token){
+  const res=await fetch('https://www.googleapis.com/drive/v3/files',{
+    method:'POST',
+    headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify({name,mimeType:'application/vnd.google-apps.folder',parents:[parentId]})
+  });
+  if(!res.ok)throw new Error('Drive folder create failed: '+res.status);
+  const data=await res.json();
+  return data.id;
+}
+
+async function gdriveGetOrCreateFolder(name,parentId,token){
+  const clean=(name||'Unnamed').trim();
+  let id=await gdriveFindFolder(clean,parentId,token);
+  if(!id)id=await gdriveCreateFolder(clean,parentId,token);
+  return id;
+}
+
+async function gdriveUploadFile(blob,filename,folderId,token){
+  const metadata={name:filename,parents:[folderId]};
+  const form=new FormData();
+  form.append('metadata',new Blob([JSON.stringify(metadata)],{type:'application/json'}));
+  form.append('file',blob);
+  const res=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+token},body:form});
+  if(!res.ok)throw new Error('Drive upload failed: '+res.status);
+  return res.json();
+}
+
+async function syncToGDrive(d,pdfBlob,filename,invoiceNumber){
+  const token=getGDriveToken();
+  if(!token){toast('⚠ Drive not connected — saved locally only');return;}
+  try{
+    let targetFolderId;
+    if(d.isCarGuys){
+      targetFolderId=GDRIVE_FOLDERS.carGuysNew;
+    }else{
+      const custFolderId=await gdriveGetOrCreateFolder(d.custName||'Unknown Customer',GDRIVE_FOLDERS.privateRoot,token);
+      targetFolderId=await gdriveGetOrCreateFolder(`${d.make||''} ${d.model||''}`.trim()||'Unknown Vehicle',custFolderId,token);
+    }
+    await gdriveUploadFile(pdfBlob,filename,targetFolderId,token);
+    const backup={exportedAt:new Date().toISOString(),version:2,customers:getCustomers(),history:getHistory(),jobs:getJobs(),draft:JSON.parse(localStorage.getItem('jw_draft')||'null')};
+    const backupBlob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
+    const backupName=`JW_Backup_${new Date().toISOString().slice(0,10)}_${invoiceNumber}.json`;
+    await gdriveUploadFile(backupBlob,backupName,GDRIVE_FOLDERS.adminBackups,token);
+    toast('✓ Synced to Google Drive');
+  }catch(err){
+    console.error('Drive sync failed:',err);
+    toast('⚠ Drive sync failed — saved locally only');
+  }
+}
 
 function getNextInvoiceNumber(customerType){
   const prefix=customerType==='carguysinspection'?'CG':customerType==='cash'?'C':'PC';
@@ -1675,22 +1782,23 @@ function generatePDF(previewOnly=false){
     pdfMake.createPdf(docDef).download('PREVIEW_'+`${d.rego}_${d.make}_${d.model}.pdf`.replace(/\s+/g,'_'));
     toast('Downloading preview PDF…');
   } else {
-    // Use Web Share API on iOS (no blob URL in share sheet), fallback to download elsewhere
-    if(navigator.share&&typeof navigator.canShare==='function'){
-      pdfMake.createPdf(docDef).getBlob(function(blob){
+    // Single PDF render — reused for local save/share AND Drive sync, no duplicate generation
+    pdfMake.createPdf(docDef).getBlob(function(blob){
+      if(navigator.share&&typeof navigator.canShare==='function'){
         const file=new File([blob],filename,{type:'application/pdf'});
         if(navigator.canShare({files:[file]})){
           navigator.share({files:[file],title:filename}).catch(()=>{
-            // User cancelled or share failed — fall back to download
             const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),1000);
           });
         } else {
-          pdfMake.createPdf(docDef).download(filename);
+          const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),1000);
         }
-      });
-    } else {
-      pdfMake.createPdf(docDef).download(filename);
-    }
+      } else {
+        const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),1000);
+      }
+      // Drive sync — best-effort, never blocks or breaks the local save above
+      syncToGDrive(d,blob,filename,invoiceNumber);
+    });
     saveJobSnapshot(snap,total.toFixed(2),invoiceNumber);
     saveToHistory(d,total.toFixed(2),invoiceNumber);
     if(!d.isCarGuys&&d.custName)saveCustomer(d.custName,d.custMobile,d.custEmail);
