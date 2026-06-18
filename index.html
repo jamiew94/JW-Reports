@@ -161,6 +161,7 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
   <div id="gdriveStatus" style="padding:2px 18px 7px;font-size:10px;color:#aab2c5;">⚪ Drive not connected</div>
   <div style="height:1px;background:#eee;margin:2px 0;"></div>
   <button class="menu-item" style="color:#c0392b;" onclick="clearAll();toggleMenu()">✕ Clear All</button>
+  <button class="menu-item" onclick="resetInvoiceNumber();toggleMenu()">🔄 Reset Invoice Number</button>
   <div style="height:1px;background:#eee;margin:2px 0;"></div>
   <div style="padding:7px 18px 8px;font-size:10px;color:#aab2c5;font-family:'Courier New',monospace;text-align:center;">Build: 18/6/26</div>
 </div>
@@ -614,6 +615,10 @@ const EXTERIOR_ITEMS=[{key:'lights',label:'Lights'},{key:'wipers',label:'Wipers'
 // ═══════════════════════════════════════════
 let jobPhotos=[];
 let sessionInvoiceNumber=null;
+function resetInvoiceNumber(){
+  sessionInvoiceNumber=null;
+  toast('✓ Invoice number cleared — next Generate & Save will pull a fresh one');
+}
 
 // ═══════════════════════════════════════════
 //  GOOGLE DRIVE SYNC
@@ -622,6 +627,40 @@ const GDRIVE_CLIENT_ID='849772361417-f1jk25n49kjdaospud0c2trekc7r7j0h.apps.googl
 const GDRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
 const GDRIVE_FOLDERS={carGuysNew:'1Mgix5FOWbEXEUMCla9PY9dYhPdn8vNWh',privateRoot:'1pYQIT8EiirMoOeFAL5Spq-J235mOYlMr',adminBackups:'1fX0xbayxVU5U4gKQF6MWUqKUaqxZwATD'};
 let gDriveTokenClient=null,gDriveAccessToken=null,gDriveTokenExpiry=0;
+let gDriveAutoSyncFolderId=null; // cached once found/created, so we don't search every time
+
+function getInvoiceCounters(){
+  return {cg:parseInt(localStorage.getItem('jw_inv_cg')||'0'),c:parseInt(localStorage.getItem('jw_inv_c')||'0'),pc:parseInt(localStorage.getItem('jw_inv_pc')||'0')};
+}
+function mergeInvoiceCounters(incoming){
+  if(!incoming)return;
+  const cur=getInvoiceCounters();
+  localStorage.setItem('jw_inv_cg',Math.max(cur.cg,incoming.cg||0).toString());
+  localStorage.setItem('jw_inv_c',Math.max(cur.c,incoming.c||0).toString());
+  localStorage.setItem('jw_inv_pc',Math.max(cur.pc,incoming.pc||0).toString());
+}
+function buildBackupObject(){
+  return {exportedAt:new Date().toISOString(),version:3,customers:getCustomers(),history:getHistory(),jobs:getJobs(),draft:JSON.parse(localStorage.getItem('jw_draft')||'null'),counters:getInvoiceCounters()};
+}
+// Merge an incoming backup into local data — same logic used by manual "Import & Merge" and Drive auto-restore
+function applyBackupMerge(backup,silent){
+  const incomingJobs=backup.jobs||[],incomingHist=backup.history||[],incomingCust=backup.customers||[];
+  const existingJobs=getJobs();
+  const existingJobIds=new Set(existingJobs.map(j=>j.jobId));
+  const newJobs=incomingJobs.filter(j=>j.jobId&&!existingJobIds.has(j.jobId));
+  if(newJobs.length>0)localStorage.setItem('jw_jobs',JSON.stringify([...newJobs,...existingJobs].slice(0,500)));
+  const existingHist=getHistory();
+  const existingHistKeys=new Set(existingHist.map(h=>`${h.rego}|${h.date}|${h.total}|${h.generatedAt}`));
+  const newHist=incomingHist.filter(h=>!existingHistKeys.has(`${h.rego}|${h.date}|${h.total}|${h.generatedAt}`));
+  if(newHist.length>0)localStorage.setItem('jw_history',JSON.stringify([...newHist,...existingHist].slice(0,200)));
+  const existingCust=getCustomers();
+  const existingCustNames=new Set(existingCust.map(c=>c.name.toLowerCase()));
+  const newCust=incomingCust.filter(c=>c.name&&!existingCustNames.has(c.name.toLowerCase()));
+  if(newCust.length>0)localStorage.setItem('jw_customers',JSON.stringify([...newCust,...existingCust].slice(0,100)));
+  mergeInvoiceCounters(backup.counters);
+  if(!silent)toast(`✓ Merged: ${newJobs.length} jobs added · ${newHist.length} history · ${newCust.length} customers`);
+  return {newJobs:newJobs.length,newHist:newHist.length,newCust:newCust.length};
+}
 
 function initGDrive(){
   if(!window.google||!window.google.accounts){return;}
@@ -633,6 +672,7 @@ function initGDrive(){
         gDriveAccessToken=resp.access_token;
         gDriveTokenExpiry=Date.now()+((resp.expires_in||3600)*1000)-60000;
         toast('✓ Google Drive connected');
+        autoRestoreFromDrive(gDriveAccessToken);
       }else{
         toast('Drive connection cancelled or failed.');
       }
@@ -685,14 +725,66 @@ async function gdriveGetOrCreateFolder(name,parentId,token){
   return id;
 }
 
+async function gdriveFindFile(filename,parentId,token){
+  const safeName=filename.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  const q=encodeURIComponent(`name='${safeName}' and '${parentId}' in parents and trashed=false`);
+  const res=await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`,{headers:{Authorization:'Bearer '+token}});
+  if(!res.ok)throw new Error('Drive file search failed: '+res.status);
+  const data=await res.json();
+  return (data.files&&data.files.length)?data.files[0].id:null;
+}
+
 async function gdriveUploadFile(blob,filename,folderId,token){
-  const metadata={name:filename,parents:[folderId]};
+  // Same name already in that folder = this is a re-save of the same invoice number, not a new one.
+  // Replace its content in place rather than creating a duplicate alongside it.
+  const existingId=await gdriveFindFile(filename,folderId,token);
+  const metadata=existingId?{name:filename}:{name:filename,parents:[folderId]};
   const form=new FormData();
   form.append('metadata',new Blob([JSON.stringify(metadata)],{type:'application/json'}));
   form.append('file',blob);
-  const res=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',{method:'POST',headers:{Authorization:'Bearer '+token},body:form});
+  const url=existingId?`https://www.googleapis.com/upload/drive/v3/files/${existingId}?uploadType=multipart`:'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart';
+  const res=await fetch(url,{method:existingId?'PATCH':'POST',headers:{Authorization:'Bearer '+token},body:form});
   if(!res.ok)throw new Error('Drive upload failed: '+res.status);
   return res.json();
+}
+
+async function gdriveMostRecentFile(folderId,token){
+  const q=encodeURIComponent(`'${folderId}' in parents and trashed=false and mimeType='application/json'`);
+  const res=await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=modifiedTime desc&pageSize=1&fields=files(id,name,modifiedTime)`,{headers:{Authorization:'Bearer '+token}});
+  if(!res.ok)throw new Error('Drive list failed: '+res.status);
+  const data=await res.json();
+  return (data.files&&data.files.length)?data.files[0]:null;
+}
+
+async function gdriveDownloadFile(fileId,token){
+  const res=await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,{headers:{Authorization:'Bearer '+token}});
+  if(!res.ok)throw new Error('Drive download failed: '+res.status);
+  return res.json();
+}
+
+// Runs automatically right after connecting — pulls the latest cross-device snapshot in,
+// non-destructively (merge only), so a fresh device picks up the current invoice counters
+// and any jobs/customers logged elsewhere, without ever overwriting what's already here.
+async function autoRestoreFromDrive(token){
+  try{
+    const autoSyncFolderId=await gdriveGetAutoSyncFolder(token);
+    const latest=await gdriveMostRecentFile(autoSyncFolderId,token);
+    if(!latest)return; // nothing synced yet — nothing to restore
+    const backup=await gdriveDownloadFile(latest.id,token);
+    const result=applyBackupMerge(backup,true);
+    if(result.newJobs||result.newHist||result.newCust){
+      toast(`✓ Synced from Drive: ${result.newJobs} jobs, ${result.newCust} customers`);
+    }
+  }catch(err){
+    console.error('Auto-restore from Drive failed:',err);
+    // Silent otherwise — a failed restore shouldn't interrupt the connect flow
+  }
+}
+
+async function gdriveGetAutoSyncFolder(token){
+  if(gDriveAutoSyncFolderId)return gDriveAutoSyncFolderId;
+  gDriveAutoSyncFolderId=await gdriveGetOrCreateFolder('Auto Sync',GDRIVE_FOLDERS.adminBackups,token);
+  return gDriveAutoSyncFolderId;
 }
 
 async function syncToGDrive(d,pdfBlob,filename,invoiceNumber){
@@ -707,10 +799,11 @@ async function syncToGDrive(d,pdfBlob,filename,invoiceNumber){
       targetFolderId=await gdriveGetOrCreateFolder(`${d.make||''} ${d.model||''}`.trim()||'Unknown Vehicle',custFolderId,token);
     }
     await gdriveUploadFile(pdfBlob,filename,targetFolderId,token);
-    const backup={exportedAt:new Date().toISOString(),version:2,customers:getCustomers(),history:getHistory(),jobs:getJobs(),draft:JSON.parse(localStorage.getItem('jw_draft')||'null')};
-    const backupBlob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});
-    const backupName=`JW_Backup_${new Date().toISOString().slice(0,10)}_${invoiceNumber}.json`;
-    await gdriveUploadFile(backupBlob,backupName,GDRIVE_FOLDERS.adminBackups,token);
+    // Backup JSON goes into Admin/Backups/Auto Sync — separate from your manual backups, never mixed in
+    const autoSyncFolderId=await gdriveGetAutoSyncFolder(token);
+    const backupBlob=new Blob([JSON.stringify(buildBackupObject(),null,2)],{type:'application/json'});
+    const backupName=`JW_AutoSync_${new Date().toISOString().slice(0,10)}_${invoiceNumber}.json`;
+    await gdriveUploadFile(backupBlob,backupName,autoSyncFolderId,token);
     toast('✓ Synced to Google Drive');
   }catch(err){
     console.error('Drive sync failed:',err);
@@ -1803,6 +1896,7 @@ function generatePDF(previewOnly=false){
     saveToHistory(d,total.toFixed(2),invoiceNumber);
     if(!d.isCarGuys&&d.custName)saveCustomer(d.custName,d.custMobile,d.custEmail);
     toast(`\u2713 ${invoiceNumber} generated & saved!`);autosave();
+    sessionInvoiceNumber=null; // spent — next Generate & Save always pulls a fresh number, never reused
   }
 }
 
@@ -1954,7 +2048,7 @@ function saveToHistory(d,total,invoiceNumber){let h=getHistory();h.unshift({rego
 // ═══════════════════════════════════════════
 //  BACKUP & RESTORE
 // ═══════════════════════════════════════════
-function exportBackup(){const backup={exportedAt:new Date().toISOString(),version:2,customers:getCustomers(),history:getHistory(),jobs:getJobs(),draft:JSON.parse(localStorage.getItem('jw_draft')||'null')};const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`JW_Reports_Backup_${new Date().toLocaleDateString('en-AU').replace(/\//g,'-')}.json`;a.click();URL.revokeObjectURL(url);toast('✓ Backup downloaded');}
+function exportBackup(){const backup=buildBackupObject();const blob=new Blob([JSON.stringify(backup,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`JW_Reports_Backup_${new Date().toLocaleDateString('en-AU').replace(/\//g,'-')}.json`;a.click();URL.revokeObjectURL(url);toast('✓ Backup downloaded');}
 
 function importBackup(event,mode){
   const file=event.target.files[0];if(!file)return;
@@ -1968,20 +2062,7 @@ function importBackup(event,mode){
       const incomingCust=backup.customers||[];
 
       if(mode==='merge'){
-        // Add new only — skip anything already present
-        const existingJobs=getJobs();
-        const existingJobIds=new Set(existingJobs.map(j=>j.jobId));
-        const newJobs=incomingJobs.filter(j=>j.jobId&&!existingJobIds.has(j.jobId));
-        if(newJobs.length>0)localStorage.setItem('jw_jobs',JSON.stringify([...newJobs,...existingJobs].slice(0,500)));
-        const existingHist=getHistory();
-        const existingHistKeys=new Set(existingHist.map(h=>`${h.rego}|${h.date}|${h.total}|${h.generatedAt}`));
-        const newHist=incomingHist.filter(h=>!existingHistKeys.has(`${h.rego}|${h.date}|${h.total}|${h.generatedAt}`));
-        if(newHist.length>0)localStorage.setItem('jw_history',JSON.stringify([...newHist,...existingHist].slice(0,200)));
-        const existingCust=getCustomers();
-        const existingCustNames=new Set(existingCust.map(c=>c.name.toLowerCase()));
-        const newCust=incomingCust.filter(c=>c.name&&!existingCustNames.has(c.name.toLowerCase()));
-        if(newCust.length>0)localStorage.setItem('jw_customers',JSON.stringify([...newCust,...existingCust].slice(0,100)));
-        toast(`✓ Merged: ${newJobs.length} jobs added · ${newHist.length} history · ${newCust.length} customers`);
+        applyBackupMerge(backup);
 
       }else if(mode==='overwrite'){
         // Add new + overwrite existing by jobId — incoming is authoritative
@@ -2001,6 +2082,7 @@ function importBackup(event,mode){
         const keptCust=existingCust.filter(c=>!incomingCustNames.has(c.name.toLowerCase()));
         localStorage.setItem('jw_customers',JSON.stringify([...incomingCust,...keptCust].slice(0,100)));
         const overwrittenCount=incomingJobs.filter(j=>j.jobId&&new Set(getJobs().map(x=>x.jobId)).has(j.jobId)).length;
+        mergeInvoiceCounters(backup.counters);
         toast(`✓ Overwrite complete: ${incomingJobs.length} jobs synced · ${incomingCust.length} customers updated`);
 
       }else if(mode==='subtract'){
@@ -2068,4 +2150,4 @@ document.getElementById('historyModal').addEventListener('click',function(e){if(
 document.getElementById('customersModal').addEventListener('click',function(e){if(e.target===this)closeCustomers();});
 </script>
 </body>
-</html>
+</html>c
