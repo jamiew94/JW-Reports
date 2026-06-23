@@ -136,6 +136,7 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
   </div>
   <div class="header-actions">
     <span class="saved-indicator" id="savedIndicator"></span>
+    <span id="gdriveHeaderDot" onclick="connectGDrive()" title="Google Drive connection — tap to connect/reconnect" style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#aab2c5;margin-right:4px;cursor:pointer;transition:background 0.2s;"></span>
     <button class="btn-hamburger" onclick="toggleMenu()" id="menuBtn" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
@@ -163,7 +164,7 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
   <button class="menu-item" style="color:#c0392b;" onclick="clearAll();toggleMenu()">✕ Clear All</button>
   <button class="menu-item" onclick="resetInvoiceNumber();toggleMenu()">🔄 Reset Invoice Number</button>
   <div style="height:1px;background:#eee;margin:2px 0;"></div>
-  <div style="padding:7px 18px 8px;font-size:10px;color:#aab2c5;font-family:'Courier New',monospace;text-align:center;">Build: 18/6/26</div>
+  <div style="padding:7px 18px 8px;font-size:10px;color:#aab2c5;font-family:'Courier New',monospace;text-align:center;">Build: 23/6/26 5:19pm</div>
 </div>
 <input type="file" id="importFileMerge" accept=".json" style="display:none;" onchange="importBackup(event,'merge')">
 <input type="file" id="importFileOverwrite" accept=".json" style="display:none;" onchange="importBackup(event,'overwrite')">
@@ -183,7 +184,7 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
         <select id="historyFilterType" onchange="renderHistory()">
           <option value="">All Job Types</option>
           <option value="full">Full Inspection</option>
-          <option value="service">Service + Inspection</option>
+          <option value="service">Service</option>
           <option value="safety">Safety Check</option>
           <option value="repair">Repair Only</option>
           <option value="inspection_repair">Inspection + Repair</option>
@@ -240,7 +241,7 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
           <label>Report Type</label>
           <select id="reportType">
             <option value="full">Full Inspection</option>
-            <option value="service">Service + Inspection</option>
+            <option value="service">Service</option>
             <option value="safety">Safety Check</option>
             <option value="repair">Repair Only</option>
             <option value="inspection_repair">Inspection + Repair</option>
@@ -615,8 +616,10 @@ const EXTERIOR_ITEMS=[{key:'lights',label:'Lights'},{key:'wipers',label:'Wipers'
 // ═══════════════════════════════════════════
 let jobPhotos=[];
 let sessionInvoiceNumber=null;
+let isEditingResumedJob=false; // true only between Resume and the next save/clear/reset — protects the number during re-parses
 function resetInvoiceNumber(){
   sessionInvoiceNumber=null;
+  isEditingResumedJob=false;
   toast('✓ Invoice number cleared — next Generate & Save will pull a fresh one');
 }
 
@@ -625,7 +628,7 @@ function resetInvoiceNumber(){
 // ═══════════════════════════════════════════
 const GDRIVE_CLIENT_ID='849772361417-f1jk25n49kjdaospud0c2trekc7r7j0h.apps.googleusercontent.com';
 const GDRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
-const GDRIVE_FOLDERS={carGuysNew:'1Mgix5FOWbEXEUMCla9PY9dYhPdn8vNWh',privateRoot:'1pYQIT8EiirMoOeFAL5Spq-J235mOYlMr',adminBackups:'1fX0xbayxVU5U4gKQF6MWUqKUaqxZwATD'};
+const GDRIVE_FOLDERS={carGuysNew:'1Mgix5FOWbEXEUMCla9PY9dYhPdn8vNWh',carGuysArchive:'1yOeVnKgbviQ0kLR6IsNPxsffl6bU-ytS',privateRoot:'1pYQIT8EiirMoOeFAL5Spq-J235mOYlMr',adminBackups:'1fX0xbayxVU5U4gKQF6MWUqKUaqxZwATD'};
 let gDriveTokenClient=null,gDriveAccessToken=null,gDriveTokenExpiry=0;
 let gDriveAutoSyncFolderId=null; // cached once found/created, so we don't search every time
 
@@ -673,6 +676,7 @@ function initGDrive(){
         gDriveTokenExpiry=Date.now()+((resp.expires_in||3600)*1000)-60000;
         toast('✓ Google Drive connected');
         autoRestoreFromDrive(gDriveAccessToken);
+        reconcileCarGuysCounter(gDriveAccessToken);
       }else{
         toast('Drive connection cancelled or failed.');
       }
@@ -680,6 +684,7 @@ function initGDrive(){
     }
   });
   updateGDriveStatus();
+  setInterval(updateGDriveStatus,60000); // catches the dot going grey on expiry, not just on connect
 }
 
 function connectGDrive(){
@@ -689,9 +694,10 @@ function connectGDrive(){
 
 function updateGDriveStatus(){
   const el=document.getElementById('gdriveStatus');
-  if(!el)return;
   const valid=gDriveAccessToken&&Date.now()<gDriveTokenExpiry;
-  el.textContent=valid?'🟢 Drive connected':'⚪ Drive not connected — tap to connect';
+  if(el)el.textContent=valid?'🟢 Drive connected':'⚪ Drive not connected — tap to connect';
+  const dot=document.getElementById('gdriveHeaderDot');
+  if(dot){dot.style.background=valid?'#2ecc71':'#aab2c5';dot.title=valid?'Google Drive connected — tap to reconnect':'Google Drive not connected — tap to connect';}
 }
 
 function getGDriveToken(){
@@ -748,6 +754,46 @@ async function gdriveUploadFile(blob,filename,folderId,token){
   return res.json();
 }
 
+async function gdriveListFilenames(folderId,token){
+  let names=[],pageToken=null;
+  do{
+    const q=encodeURIComponent(`'${folderId}' in parents and trashed=false`);
+    let url=`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(name),nextPageToken&pageSize=1000`;
+    if(pageToken)url+=`&pageToken=${pageToken}`;
+    const res=await fetch(url,{headers:{Authorization:'Bearer '+token}});
+    if(!res.ok)throw new Error('Drive list failed: '+res.status);
+    const data=await res.json();
+    names=names.concat((data.files||[]).map(f=>f.name));
+    pageToken=data.nextPageToken;
+  }while(pageToken);
+  return names;
+}
+
+// "Jamie proof" check — runs at every connect. Doesn't trust any remembered counter;
+// looks at the actual highest CG number physically present across New Invoice + Archive,
+// and only ever pulls the local counter UP to match, never down. This is what makes Drive
+// the real source of truth — any future bug that desyncs the local counter self-corrects here.
+async function reconcileCarGuysCounter(token){
+  if(!GDRIVE_FOLDERS.carGuysArchive){console.warn('Reconciliation skipped — Invoice Archive folder ID not set yet.');return;}
+  try{
+    const [newNames,archiveNames]=await Promise.all([
+      gdriveListFilenames(GDRIVE_FOLDERS.carGuysNew,token),
+      gdriveListFilenames(GDRIVE_FOLDERS.carGuysArchive,token)
+    ]);
+    let highest=0;
+    [...newNames,...archiveNames].forEach(name=>{
+      const m=name.match(/^CG(\d+)_/);
+      if(m){const n=parseInt(m[1],10);if(n>highest)highest=n;}
+    });
+    const current=parseInt(localStorage.getItem('jw_inv_cg')||'0');
+    if(highest>current){
+      localStorage.setItem('jw_inv_cg',highest.toString());
+      toast(`✓ Counter corrected to match Drive: CG${String(highest).padStart(3,'0')}`);
+    }
+  }catch(err){
+    console.error('Drive reconciliation failed:',err);
+  }
+}
 async function gdriveMostRecentFile(folderId,token){
   const q=encodeURIComponent(`'${folderId}' in parents and trashed=false and mimeType='application/json'`);
   const res=await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&orderBy=modifiedTime desc&pageSize=1&fields=files(id,name,modifiedTime)`,{headers:{Authorization:'Bearer '+token}});
@@ -825,7 +871,7 @@ function removePhoto(idx){jobPhotos.splice(idx,1);renderPhotoGrid();}
 const BONNET_ITEMS=[{key:'belts',label:'Drive Belts'},{key:'hoses',label:'Vacuum & Coolant Hoses'},{key:'battery',label:'Battery'},{key:'coolant',label:'Coolant'},{key:'brakefluid',label:'Brake Fluid'},{key:'clutch',label:'Clutch Fluid'},{key:'powersteering',label:'Power Steering Fluid'}];
 const WHEEL_POSITIONS=[{key:'lf',label:'Left Front'},{key:'rf',label:'Right Front'},{key:'lr',label:'Left Rear'},{key:'rr',label:'Right Rear'},{key:'spare',label:'Spare'}];
 const CHASSIS_FIXED=['Transmission','Differentials','Tailshaft / Prop Shaft / Centre Bearing','Driveshafts & CV Boots','Suspension – Front','Suspension – Rear'];
-const TYPE_LABELS={full:'Full Inspection',service:'Service + Inspection',safety:'Safety Check',repair:'Repair Only',inspection_repair:'Inspection + Repair',service_repair:'Service + Repair',safety_repair:'Safety Check + Repair'};
+const TYPE_LABELS={full:'Full Inspection',service:'Service',safety:'Safety Check',repair:'Repair Only',inspection_repair:'Inspection + Repair',service_repair:'Service + Repair',safety_repair:'Safety Check + Repair'};
 
 // ═══════════════════════════════════════════
 //  HELPERS
@@ -1359,7 +1405,7 @@ function parseAndPreview(){
   // Clear comments on fresh parse
   ['ext','bon','wheels','chassis','findings','repairFindings'].forEach(s=>setComments(s,[]));
   document.getElementById('restoredBanner').style.display='none';
-  sessionInvoiceNumber=null;
+  if(!isEditingResumedJob)sessionInvoiceNumber=null;
   buildFlags(parsed);buildParseSummary(parsed,notes);
   document.getElementById('previewSection').style.display='block';
   document.getElementById('previewSection').scrollIntoView({behavior:'smooth'});
@@ -1897,6 +1943,7 @@ function generatePDF(previewOnly=false){
     if(!d.isCarGuys&&d.custName)saveCustomer(d.custName,d.custMobile,d.custEmail);
     toast(`\u2713 ${invoiceNumber} generated & saved!`);autosave();
     sessionInvoiceNumber=null; // spent — next Generate & Save always pulls a fresh number, never reused
+    isEditingResumedJob=false;
   }
 }
 
@@ -1973,6 +2020,7 @@ function restoreJob(jobId){
   document.getElementById('previewSection').style.display='block';document.getElementById('restoredBanner').style.display='flex';document.getElementById('restoredBannerTitle').textContent=`Loaded: ${snap.rego} · ${snap.make} ${snap.model} · ${snap.date}${snap.invoiceNumber?' · '+snap.invoiceNumber:''}`;document.getElementById('flagsContainer').innerHTML='';
   // Reinstate original invoice number so regenerating keeps the same one
   sessionInvoiceNumber=snap.invoiceNumber||null;
+  isEditingResumedJob=true;
   window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>document.getElementById('previewSection').scrollIntoView({behavior:'smooth'}),100);toast(`↩ Loaded: ${snap.rego} ${snap.make} ${snap.model}`);
 }
 
@@ -2023,6 +2071,7 @@ function clearAll(){
   onCustomerTypeChange();
   jobPhotos=[];renderPhotoGrid();
   sessionInvoiceNumber=null;
+  isEditingResumedJob=false;
   toast('Cleared.');
 }
 document.addEventListener('input',()=>{clearTimeout(window._saveTimer);window._saveTimer=setTimeout(autosave,1500);});
@@ -2150,4 +2199,4 @@ document.getElementById('historyModal').addEventListener('click',function(e){if(
 document.getElementById('customersModal').addEventListener('click',function(e){if(e.target===this)closeCustomers();});
 </script>
 </body>
-</html>c
+</html>
