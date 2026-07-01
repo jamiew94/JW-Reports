@@ -15,7 +15,7 @@
 <style>
 :root{--navy:#1a2744;--navy-mid:#2a3f6f;--navy-light:#3d5a9e;--amber:#e8a020;--amber-light:#fef3dc;--red:#c0392b;--red-light:#fdecea;--green:#1a7a3c;--green-light:#e8f5ed;--grey-bg:#f4f6fa;--grey-border:#dde2ed;--white:#ffffff;--text:#1a2744;--text-muted:#6b7a99;--radius:10px;--shadow:0 2px 16px rgba(26,39,68,0.10);}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Georgia',serif;background:var(--grey-bg);color:var(--text);min-height:100vh;padding-bottom:40px;}
+body{font-family:'Georgia',serif;background:var(--grey-bg);color:var(--text);min-height:100vh;padding-bottom:84px;}
 .app-header{background:var(--navy);color:white;padding:18px 20px 14px;display:flex;align-items:flex-end;gap:12px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.18);}
 .app-header-logo{font-size:22px;font-weight:bold;letter-spacing:-0.5px;line-height:1;}
 .app-header-logo span{color:var(--amber);}
@@ -75,6 +75,48 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .note-num{font-weight:bold;color:var(--text-muted);font-size:14px;text-align:center;}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy);color:white;padding:12px 24px;border-radius:24px;font-size:14px;font-weight:bold;z-index:999;transition:transform 0.3s ease;pointer-events:none;}
 .toast.show{transform:translateX(-50%) translateY(0);}
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:var(--navy);display:flex;z-index:150;box-shadow:0 -2px 12px rgba(0,0,0,0.18);padding-bottom:env(safe-area-inset-bottom,0);}
+.tab-btn{flex:1;background:none;border:none;color:rgba(255,255,255,0.55);font-family:inherit;font-size:11px;font-weight:bold;letter-spacing:0.3px;padding:9px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:color 0.15s;}
+.tab-btn .tab-icon{font-size:19px;line-height:1;}
+.tab-btn.active{color:var(--amber);}
+.tab-screen-count{display:inline-block;background:var(--amber);color:var(--navy);font-size:10px;font-weight:bold;border-radius:9px;min-width:16px;height:16px;line-height:16px;text-align:center;padding:0 4px;margin-left:5px;}
+.ts-job-row{padding:14px 18px;border-bottom:1px solid var(--grey-border);}
+.ts-job-row:last-child{border-bottom:none;}
+.ts-job-row:nth-child(even){background:var(--grey-bg);}
+.ts-job-head{display:flex;justify-content:space-between;align-items:baseline;cursor:pointer;}
+.ts-job-rego{font-weight:bold;color:var(--navy);font-size:15px;}
+.ts-job-hours{font-family:'Courier New',monospace;font-size:13px;color:var(--text-muted);}
+.ts-job-meta{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.ts-log-form{display:none;margin-top:12px;padding-top:12px;border-top:1px dashed var(--grey-border);}
+.ts-log-form.open{display:block;}
+.ts-log-grid{display:grid;grid-template-columns:1fr 90px;gap:8px;margin-bottom:8px;}
+.ts-entry-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:12.5px;border-bottom:1px solid #eee;}
+.ts-entry-row:last-child{border-bottom:none;}
+.ts-entry-note{color:var(--text-muted);}
+.ts-cal-zoom-btn{flex:1;background:white;border:1.5px solid var(--grey-border);color:var(--navy);font-family:inherit;font-size:12px;font-weight:bold;padding:8px 4px;border-radius:7px;cursor:pointer;}
+.ts-cal-zoom-btn.active{background:var(--navy);color:white;border-color:var(--navy);}
+.ts-cal-metric{display:inline-block;width:48%;vertical-align:top;box-sizing:border-box;border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.ts-cal-metric:nth-child(odd){margin-right:4%;}
+.ts-cal-day{background:white;border:1.5px solid var(--grey-border);border-radius:7px;padding:6px 4px;text-align:center;cursor:pointer;min-height:50px;position:relative;}
+.ts-cal-day.has-hours{border-color:var(--navy-light);background:#eef2fa;}
+.ts-cal-day.pay-blue{background:#eef2fa;border-color:var(--navy-light);}
+.ts-cal-day.pay-yellow{background:#fff8e1;border-color:#e8a020;}
+.ts-cal-day.pay-green{background:#e8f5e9;border-color:var(--green);}
+.ts-cal-day.border-yellow{border-color:#e8a020;border-width:2px;}
+.ts-cal-day.border-green{border-color:var(--green);border-width:2px;}
+.ts-cal-day.today{box-shadow:0 0 0 2px #c2185b inset;}
+.ts-cal-day.selected{background:white!important;box-shadow:0 0 0 2px var(--navy) inset;}
+.ts-cal-day.today.selected{box-shadow:0 0 0 2px var(--navy) inset,0 0 0 4px #c2185b inset;}
+.ts-cal-day-tick{position:absolute;top:2px;right:3px;font-size:9px;color:var(--green);}
+.ts-cal-day-label{font-size:9px;color:var(--text-muted);margin-bottom:2px;}
+.ts-cal-day-hrs{font-size:12px;font-weight:bold;color:var(--navy);}
+.ts-cal-day-hrs.zero{color:var(--grey-border);}
+.ts-cal-month-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--grey-border);}
+.ts-entry-row.completed-entry{font-style:italic;color:var(--text-muted);opacity:0.75;}
+.ts-entry-row.completed-entry .ts-entry-note{opacity:0.85;}
+.ts-cal-completed-job{background:white;border:1px solid var(--grey-border);border-radius:8px;padding:10px 12px;margin-bottom:8px;}
+.ts-cal-completed-job:last-child{margin-bottom:0;}
+.ts-cal-month-row:last-child{border-bottom:none;}
 .collapsible-header{cursor:pointer;user-select:none;display:flex;justify-content:space-between;align-items:center;}
 .collapsible-header:hover{background:#243660;}
 textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:vertical;}
@@ -164,7 +206,13 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
   <button class="menu-item" style="color:#c0392b;" onclick="clearAll();toggleMenu()">✕ Clear All</button>
   <button class="menu-item" onclick="resetInvoiceNumber();toggleMenu()">🔄 Reset Invoice Number</button>
   <div style="height:1px;background:#eee;margin:2px 0;"></div>
-  <div style="padding:7px 18px 8px;font-size:10px;color:#aab2c5;font-family:'Courier New',monospace;text-align:center;">Build: 23/6/26 5:19pm</div>
+  <div style="padding:6px 18px 3px;font-size:10px;text-transform:uppercase;letter-spacing:0.7px;color:#6b7a99;font-family:'Courier New',monospace;">Settings</div>
+  <div class="menu-item" style="display:flex;justify-content:space-between;align-items:center;cursor:default;" onclick="event.stopPropagation();">
+    <span style="font-size:13px;">Undo Clear (30s)</span>
+    <input type="checkbox" id="undoClearToggle" onchange="saveUndoClearSetting()" style="width:18px;height:18px;">
+  </div>
+  <div style="height:1px;background:#eee;margin:2px 0;"></div>
+  <div style="padding:7px 18px 8px;font-size:10px;color:#aab2c5;font-family:'Courier New',monospace;text-align:center;">v36 · 23/6/26</div>
 </div>
 <input type="file" id="importFileMerge" accept=".json" style="display:none;" onchange="importBackup(event,'merge')">
 <input type="file" id="importFileOverwrite" accept=".json" style="display:none;" onchange="importBackup(event,'overwrite')">
@@ -222,7 +270,7 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
   </div>
 </div>
 
-<div class="container">
+<div class="container" id="screenReport" style="display:none;">
 
   <!-- JOB SETUP -->
   <div class="card" id="setupCard">
@@ -239,7 +287,7 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
         </div>
         <div class="field-group">
           <label>Report Type</label>
-          <select id="reportType">
+          <select id="reportType" onchange="applyReportTypeLayout()">
             <option value="full">Full Inspection</option>
             <option value="service">Service</option>
             <option value="safety">Safety Check</option>
@@ -300,6 +348,7 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
   <div class="card">
     <div class="card-header">Job Notes</div>
     <div class="card-body">
+      <div id="loggedNotesBanner" style="display:none;"></div>
       <div class="field-group">
         <label>Paste your shorthand notes</label>
         <textarea id="notesInput" placeholder="tf 3.5 3.5&#10;tr0.5 0.5  38psi spare 50psi&#10;27%glycol&#10;690/720cca&#10;lights seat belts wipers doors windows ok no dtcs&#10;centre bearing split - adv&#10;front lower control arm worn - c&#10;2hrs inspection&#10;..."></textarea>
@@ -561,6 +610,7 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
     <div class="card">
       <div class="card-header">Labour</div>
       <div class="card-body">
+        <div id="loggedHoursBanner" style="display:none;"></div>
         <div style="display:grid;grid-template-columns:3fr 70px 28px;gap:8px;margin-bottom:4px;">
           <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;">Description</span>
           <span style="font-size:10px;color:#6b7a99;font-family:'Courier New',monospace;text-align:center;">Hours</span>
@@ -602,7 +652,204 @@ textarea.notes-multi{min-height:60px;font-family:inherit;font-size:13px;resize:v
 
   </div>
 </div>
+
+<!-- TIMESHEET SCREEN -->
+<div class="container" id="screenTimesheet" style="display:block;">
+
+  <!-- DAY HOURS — Start/Finish + deductions are a written record only. Nothing here is
+       subtracted from anything or fed into invoicing. The only thing this card does with
+       the numbers is compare "time on the clock" against "hours actually logged against jobs
+       today" so a gap is visible same-day, not discovered weeks later at BAS time. -->
+  <div class="card">
+    <div class="card-header">Day Hours <span style="font-weight:normal;font-size:11px;color:rgba(255,255,255,0.6);text-transform:none;letter-spacing:0;" id="dayHrsDateLabel"></span></div>
+    <div class="card-body">
+      <div class="dropdowns" style="margin-bottom:12px;">
+        <div class="field-group">
+          <label>Start</label>
+          <div style="display:flex;gap:4px;">
+            <select id="dayStartHour" onchange="syncTimeSelects('Start')" style="flex:1;"></select>
+            <select id="dayStartMin" onchange="syncTimeSelects('Start')" style="flex:1;"></select>
+          </div>
+          <input type="hidden" id="dayStart">
+        </div>
+        <div class="field-group">
+          <label>Finish</label>
+          <div style="display:flex;gap:4px;">
+            <select id="dayEndHour" onchange="syncTimeSelects('End')" style="flex:1;"></select>
+            <select id="dayEndMin" onchange="syncTimeSelects('End')" style="flex:1;"></select>
+          </div>
+          <input type="hidden" id="dayEnd">
+        </div>
+      </div>
+
+      <button class="btn-flag" style="background:none;border:1.5px solid var(--grey-border);color:var(--navy);width:100%;margin-bottom:8px;" onclick="addDeduction(0.5,'Lunch')">+ Lunch 30m</button>
+      <div id="deductionsList" style="margin-bottom:6px;"></div>
+
+      <div id="dayHrsResult" style="display:none;border-top:1.5px solid var(--grey-border);padding-top:12px;margin-top:6px;">
+        <div class="dropdowns">
+          <div style="text-align:center;">
+            <div class="notes-hint" style="margin:0;">ON CLOCK</div>
+            <div style="font-size:20px;font-weight:bold;color:var(--navy);font-family:'Courier New',monospace;" id="dayOnClock">—</div>
+          </div>
+          <div style="text-align:center;">
+            <div class="notes-hint" style="margin:0;">LOGGED TODAY</div>
+            <div style="font-size:20px;font-weight:bold;color:var(--green);font-family:'Courier New',monospace;" id="dayLogged">—</div>
+          </div>
+        </div>
+        <div id="dayGapBanner" style="margin-top:10px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOG TIME — typing a rego that has no open job auto-opens one (no separate "Start Job"
+       step). This matches how Jamie actually works: log time first, the job record is just
+       whatever falls out of that. -->
+  <div class="card">
+    <div class="card-header">Log Time</div>
+    <div class="card-body">
+      <div class="field-group">
+        <label>Rego</label>
+        <input type="text" id="tsLogRego" placeholder="e.g. 1EVB314" autocomplete="off" style="text-transform:uppercase;"
+          oninput="tsRegoSuggest(this.value)" onblur="setTimeout(()=>{const b=document.getElementById('tsRegoSuggBox');if(b)b.style.display='none';},200)">
+        <div id="tsRegoSuggBox" style="display:none;position:relative;z-index:50;">
+          <div id="tsRegoSuggList" style="position:absolute;top:2px;left:0;right:0;background:white;border:1.5px solid var(--navy-light);border-radius:7px;box-shadow:var(--shadow);max-height:160px;overflow-y:auto;"></div>
+        </div>
+      </div>
+      <div class="dropdowns">
+        <div class="field-group">
+          <label>Date</label>
+          <input type="text" id="tsLogDate" placeholder="DD/MM/YY">
+        </div>
+        <div class="field-group">
+          <label>Hours</label>
+          <input type="number" id="tsLogHours" placeholder="2.5" step="0.25" min="0" max="24">
+        </div>
+      </div>
+      <div class="field-group">
+        <label>Note (optional)</label>
+        <input type="text" id="tsLogNote" placeholder="e.g. diagnosed alternator">
+      </div>
+      <button class="btn-generate" style="margin-top:4px;" onclick="logTimeEntry()">+ Log Time</button>
+    </div>
+  </div>
+
+  <!-- TODAY — jobs with at least one timesheet entry dated today. This is the end-of-day
+       checklist: did I log hours against everything I actually touched today? A job stays here
+       for the rest of today regardless of whether it's brand new or has been open for weeks —
+       what matters is "did I touch it today," not its invoice status. -->
+  <div class="card">
+    <div class="card-header">Today <span style="font-weight:normal;font-size:11px;color:rgba(255,255,255,0.6);text-transform:none;letter-spacing:0;" id="tsTodayDateLabel"></span></div>
+    <div class="card-body" id="timesheetTodayBody" style="padding:0;">
+      <div style="padding:18px;color:var(--text-muted);font-size:13px;text-align:center;">Nothing logged today yet.</div>
+    </div>
+  </div>
+
+  <!-- OPEN JOBS — open jobs with NO entry dated today. These are the multi-day jobs sitting
+       in progress, carried over from an earlier day. A job drops out of Today and into here
+       automatically once a new day starts and it hasn't been touched yet today — no manual
+       "move" step, it's just whichever day's entries actually exist. -->
+  <div class="card">
+    <div class="card-header">Open Jobs</div>
+    <div class="card-body" id="timesheetOpenJobsBody" style="padding:0;">
+      <div style="padding:18px;color:var(--text-muted);font-size:13px;text-align:center;">No open jobs.</div>
+    </div>
+  </div>
+
+  <!-- CALENDAR — Week/Month/Quarter zoom over logged hours. Same date-range concept at every
+       zoom level: count weekdays in range × 7.6h/day = target, actual hours logged in range vs
+       that target = the shortfall/on-track banner. Week shows a 7-day strip with per-day rego
+       lists (most detail); Month shows a day-grid with hours-only per cell (tap a day to see
+       its detail below); Quarter shows month-by-month totals (no per-day grid — 90 cells doesn't
+       fit a phone screen meaningfully). All three share the same "Hours by Job" breakdown table,
+       scoped to whichever range is currently selected. -->
+  <div class="card">
+    <div class="card-header">Calendar</div>
+    <div class="card-body">
+      <div style="display:flex;gap:6px;margin-bottom:12px;">
+        <button class="ts-cal-zoom-btn active" id="tsCalZoomWeek" onclick="setCalZoom('week')">Week</button>
+        <button class="ts-cal-zoom-btn" id="tsCalZoomMonth" onclick="setCalZoom('month')">Month</button>
+        <button class="ts-cal-zoom-btn" id="tsCalZoomQuarter" onclick="setCalZoom('quarter')">Quarter</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <button class="btn-flag" style="background:none;border:1.5px solid var(--grey-border);color:var(--navy);padding:6px 12px;" onclick="navCalRange(-1)">◀</button>
+        <div style="flex:1;text-align:center;font-size:13px;font-weight:bold;color:var(--navy);" id="tsCalRangeLabel">—</div>
+        <button class="btn-flag" style="background:none;border:1.5px solid var(--grey-border);color:var(--navy);padding:6px 12px;" onclick="navCalRange(1)">▶</button>
+        <button class="btn-flag" style="background:none;border:1.5px solid var(--grey-border);color:var(--navy);padding:6px 12px;white-space:nowrap;" onclick="goToCurrentCalRange()">Today</button>
+      </div>
+      <div id="tsCalMetrics" style="margin-bottom:12px;"></div>
+      <div id="tsCalGrid" style="margin-bottom:12px;"></div>
+      <div id="tsCalDayDetail" style="margin-bottom:12px;"></div>
+      <div class="notes-hint" style="margin-bottom:6px;">HOURS BY JOB (this range)</div>
+      <div id="tsCalBreakdown"></div>
+    </div>
+  </div>
+
+  <!-- ALL OPEN JOBS — the explicit fallback list, for when Jamie wants every open job at once
+       rather than finding them by date through Calendar. Collapsed by default since Calendar's
+       day-detail is now the primary way to interact with a specific day's jobs. -->
+  <div class="card">
+    <div class="card-header collapsible-header" onclick="toggleSection('tsAllOpenBody','tsAllOpenChevron');renderAllOpenJobsList();">
+      Show All Open Jobs <span id="tsAllOpenChevron" style="transition:transform 0.2s;">▾</span>
+    </div>
+    <div class="card-body" id="tsAllOpenBody" style="display:none;padding:0;">
+      <div style="padding:18px;color:var(--text-muted);font-size:13px;text-align:center;">No open jobs.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- PAYMENTS SCREEN — every job with status==='invoiced' (not yet paid), the working list this
+     is meant to empty out as money comes in. Distinct from Timesheet's closed/Archive concept:
+     a job can be closed (done logging hours) and still sit here for weeks waiting on payment.
+     Marking paid is monotonic (matches mergeJob's existing paid handling) and, for Car Guys
+     jobs, moves the PDF from the New Invoice folder to Archive — verified by gdriveMoveFile,
+     not just assumed from a 200 response. -->
+<div class="container" id="screenPayments" style="display:none;">
+
+  <div class="card">
+    <div class="card-header">Payments</div>
+    <div class="card-body">
+      <div class="dropdowns">
+        <div style="text-align:center;">
+          <div class="notes-hint" style="margin:0;">UNPAID</div>
+          <div style="font-size:20px;font-weight:bold;color:var(--navy);" id="paymentsCount">0</div>
+        </div>
+        <div style="text-align:center;">
+          <div class="notes-hint" style="margin:0;">OUTSTANDING</div>
+          <div style="font-size:20px;font-weight:bold;color:var(--red);" id="paymentsTotal">$0.00</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">Awaiting Payment</div>
+    <div class="card-body" id="paymentsListBody" style="padding:0;">
+      <div style="padding:18px;color:var(--text-muted);font-size:13px;text-align:center;">Nothing outstanding.</div>
+    </div>
+  </div>
+
+</div>
+
 <div class="toast" id="toast"></div>
+<div id="undoBanner" style="display:none;position:fixed;bottom:90px;left:16px;right:16px;background:var(--navy);color:white;padding:12px 16px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.25);z-index:998;display:none;align-items:center;justify-content:space-between;gap:12px;">
+  <span style="font-size:13px;">Form cleared.</span>
+  <button onclick="undoClear()" style="background:var(--amber);color:var(--navy);border:none;border-radius:6px;padding:7px 14px;font-weight:bold;font-size:13px;cursor:pointer;white-space:nowrap;">Undo</button>
+</div>
+
+<!-- BOTTOM TAB BAR -->
+<nav class="tab-bar" id="tabBar">
+  <button class="tab-btn active" id="tabBtnTimesheet" onclick="switchScreen('timesheet')">
+    <span class="tab-icon">🕒</span><span>Timesheet</span>
+  </button>
+  <button class="tab-btn" id="tabBtnReport" onclick="switchScreen('report')">
+    <span class="tab-icon">📄</span><span>Report</span>
+  </button>
+  <button class="tab-btn" id="tabBtnPayments" onclick="switchScreen('payments')">
+    <span class="tab-icon">💰</span><span>Payments</span>
+  </button>
+</nav>
+
 
 <script>
 // ═══════════════════════════════════════════
@@ -612,14 +859,82 @@ const JAMIE={name:'Jamie Watson',abn:'67 443 578 471',bank:'HSBC',accountName:'J
 const EXTERIOR_ITEMS=[{key:'lights',label:'Lights'},{key:'wipers',label:'Wipers'},{key:'seatbelts',label:'Seatbelts'},{key:'doors',label:'Doors'},{key:'windows',label:'Windows'},{key:'ac',label:'AC / Heater'},{key:'fourwd',label:'4WD Operation'},{key:'cruise',label:'Cruise Control'},{key:'dtc',label:'DTC Scan'}];
 
 // ═══════════════════════════════════════════
+//  STORE SEAM  (foundation swap — see .claude/plans + HANDOFF.md / FOUNDATION_IDEA.md)
+//  The single place allowed to touch localStorage for app data. Stage 0 = scaffold only;
+//  nothing routes through it yet (Stage 1 wires every read/write here at once).
+//  TEST_MODE prefixes every key so a test build can NEVER read or write the live store,
+//  and (Stage 3) switches Drive to an isolated folder. Flip to false to go live.
+// ═══════════════════════════════════════════
+const TEST_MODE = true;
+const STORE_PREFIX = TEST_MODE ? 'TEST_' : '';
+function lsKey(k){ return STORE_PREFIX + k; }
+const Store = {
+  _get(key, fallback){ try{ const v=localStorage.getItem(lsKey(key)); return v==null?fallback:JSON.parse(v); }catch(e){ return fallback; } },
+  _set(key, val){ try{ localStorage.setItem(lsKey(key), JSON.stringify(val)); return true; }catch(e){ console.error('Store._set failed:',key,e); return false; } },
+  _raw(key, fallback){ const v=localStorage.getItem(lsKey(key)); return v==null?fallback:v; },
+  _setRaw(key, val){ try{ localStorage.setItem(lsKey(key), val); }catch(e){ console.error('Store._setRaw failed:',key,e); } },
+  _remove(key){ localStorage.removeItem(lsKey(key)); },
+  // ── entity accessors (Stage 1): the ONLY places these keys are named ──
+  getJobs(){ return this._get('jw_jobs', []); },
+  setJobs(a){ return this._set('jw_jobs', a||[]); },
+  // Single mutation path for "modify one job by id and persist" — replaces the getJobs()→find→
+  // mutate→setJobs cycle that was hand-rolled across the timesheet functions (HANDOFF §1).
+  // fn mutates the job in place; returning false aborts the write. Bumps updatedAt. Returns the
+  // updated job, or null if the job is missing / fn aborted.
+  mutateJob(jobId, fn){
+    const jobs=this.getJobs();
+    const idx=jobs.findIndex(j=>j.jobId===jobId);
+    if(idx===-1) return null;
+    if(fn(jobs[idx])===false) return null;
+    jobs[idx].updatedAt=new Date().toISOString();
+    this.setJobs(jobs);
+    return jobs[idx];
+  },
+  getProfiles(){ return this._get('jw_profiles', {}); },
+  setProfiles(p){ return this._set('jw_profiles', p||{}); },
+  hasProfiles(){ return this._raw('jw_profiles', null)!==null; },
+  getCustomers(){ return this._get('jw_customers', []); },
+  setCustomers(c){ return this._set('jw_customers', c||[]); },
+  getHistory(){ return this._get('jw_history', []); },
+  setHistory(h){ return this._set('jw_history', h||[]); },
+  _counterKey(n){ return n==='cg'?'jw_inv_cg':n==='c'?'jw_inv_c':'jw_inv_pc'; },
+  getCounter(n){ return parseInt(this._raw(this._counterKey(n),'0')); },
+  setCounter(n,v){ this._setRaw(this._counterKey(n), String(v)); },
+  getCounters(){ return {cg:this.getCounter('cg'), c:this.getCounter('c'), pc:this.getCounter('pc')}; },
+  getDraft(){ return this._get('jw_draft', null); },
+  setDraft(d){ return this._set('jw_draft', d); },
+  clearDraft(){ this._remove('jw_draft'); },
+  getUndoClearRaw(){ return this._raw('jw_undoClearEnabled', null); },
+  setUndoClear(b){ this._setRaw('jw_undoClearEnabled', b?'true':'false'); },
+  getDayHrs(){ return this._get('jw_dayhrs_v1', {}); },
+  setDayHrs(o){ return this._set('jw_dayhrs_v1', o||{}); },
+  // ── test-build seeding: copy a snapshot of LIVE (unprefixed) data into the TEST_ store once,
+  //    so the isolated test build has realistic data. Reads live, writes ONLY prefixed keys —
+  //    never mutates live. No-op unless TEST_MODE and the test store is still empty.
+  ALL_KEYS: ['jw_jobs','jw_customers','jw_history','jw_profiles','jw_inv_cg','jw_inv_c','jw_inv_pc','jw_draft','jw_undoClearEnabled','jw_dayhrs_v1'],
+  seedFromLiveIfEmpty(){
+    if(!TEST_MODE) return false;                          // only test builds seed
+    if(this._raw('jw_jobs', null)!==null) return false;   // test store already has data
+    let liveJobs=null; try{ liveJobs=JSON.parse(localStorage.getItem('jw_jobs')||'null'); }catch(e){}
+    if(!liveJobs || !liveJobs.length) return false;       // nothing live worth copying
+    if(typeof confirm==='function' && !confirm('This is an isolated TEST build. Copy a snapshot of your live data into it so you can test realistically? Your live data will NOT be changed.')) return false;
+    this.ALL_KEYS.forEach(k=>{ const v=localStorage.getItem(k); if(v!==null) localStorage.setItem(lsKey(k), v); });
+    if(typeof toast==='function') toast('✓ Test build seeded with a copy of your live data');
+    return true;
+  },
+};
+
+// ═══════════════════════════════════════════
 //  PHOTOS STATE
 // ═══════════════════════════════════════════
 let jobPhotos=[];
 let sessionInvoiceNumber=null;
 let isEditingResumedJob=false; // true only between Resume and the next save/clear/reset — protects the number during re-parses
+let resumedJobId=null; // jobId of the record currently being resumed/edited, so re-saving updates it in place instead of cloning a new job record
 function resetInvoiceNumber(){
   sessionInvoiceNumber=null;
   isEditingResumedJob=false;
+  resumedJobId=null;
   toast('✓ Invoice number cleared — next Generate & Save will pull a fresh one');
 }
 
@@ -628,38 +943,227 @@ function resetInvoiceNumber(){
 // ═══════════════════════════════════════════
 const GDRIVE_CLIENT_ID='849772361417-f1jk25n49kjdaospud0c2trekc7r7j0h.apps.googleusercontent.com';
 const GDRIVE_SCOPE='https://www.googleapis.com/auth/drive.file';
-const GDRIVE_FOLDERS={carGuysNew:'1Mgix5FOWbEXEUMCla9PY9dYhPdn8vNWh',carGuysArchive:'1yOeVnKgbviQ0kLR6IsNPxsffl6bU-ytS',privateRoot:'1pYQIT8EiirMoOeFAL5Spq-J235mOYlMr',adminBackups:'1fX0xbayxVU5U4gKQF6MWUqKUaqxZwATD'};
+const LIVE_GDRIVE_FOLDERS={carGuysNew:'1Mgix5FOWbEXEUMCla9PY9dYhPdn8vNWh',carGuysArchive:'1yOeVnKgbviQ0kLR6IsNPxsffl6bU-ytS',privateRoot:'1pYQIT8EiirMoOeFAL5Spq-J235mOYlMr',adminBackups:'1fX0xbayxVU5U4gKQF6MWUqKUaqxZwATD'};
+// TEST_MODE NEVER uses the live IDs: GDRIVE_FOLDERS starts blank and is filled at connect
+// (ensureDriveFolders) with an auto-created "JW TEST" folder tree, so a test build is physically
+// isolated from the real Car Guys / admin folders. A stray Drive call before resolution hits a
+// null folder and fails safe ("saved locally only") rather than touching live.
+let GDRIVE_FOLDERS = TEST_MODE ? {carGuysNew:null,carGuysArchive:null,privateRoot:null,adminBackups:null} : {...LIVE_GDRIVE_FOLDERS};
+const CANONICAL_FILE='JW_Canonical.json';   // single Drive source-of-truth backup, overwritten in place
+const SNAPSHOT_KEEP=10;                       // rolling ring of dated snapshots kept for recovery
+let gDriveFoldersReady=false;
 let gDriveTokenClient=null,gDriveAccessToken=null,gDriveTokenExpiry=0;
 let gDriveAutoSyncFolderId=null; // cached once found/created, so we don't search every time
 
+// ═══════════════════════════════════════════
+//  TIMESHEET + PAYMENTS — CORE MODEL (Build Spec v2, §4)
+//  Status lifecycle: open (draft, accruing hours) → invoiced (PDF generated) → paid (archived)
+//  These functions are intentionally small and pure where possible — see build spec §9 step 1
+//  for the isolated test harness this passed before being wired into the live app.
+// ═══════════════════════════════════════════
+
+function tsFromJobId(jobId){ const n=Number(jobId); return isFinite(n)?new Date(n).toISOString():new Date().toISOString(); }
+function maxStr(a,b){ return (a||'')>=(b||'')?(a||''):(b||''); }
+
+// MIGRATION — upgrade an existing jw_jobs record in place. Idempotent: safe to run on every load,
+// already-migrated jobs pass through unchanged because every check is "if field is undefined".
+function migrateJob(j){
+  const out={...j};
+  if(out.status===undefined) out.status = out.paid ? 'paid' : (out.invoiceNumber||out.invoiceTotal ? 'invoiced' : 'open');
+  if(out.paid===undefined) out.paid=false;
+  if(out.paidDate===undefined) out.paidDate=null;
+  if(!Array.isArray(out.timesheet)) out.timesheet=[];
+  if(out.driveFileId===undefined) out.driveFileId=null;
+  if(!out.openedAt) out.openedAt=tsFromJobId(out.jobId);
+  if(!out.updatedAt) out.updatedAt=tsFromJobId(out.jobId);
+  // CLOSED — separate from status. Means "done logging hours against this," independent of
+  // whether it was ever invoiced. A job can be closed without being invoiced (Jamie just
+  // finishes logging and closes it out), or invoiced without yet being closed in rare edge
+  // cases during migration. Existing invoiced/paid jobs default closed (they're past active
+  // logging); existing open jobs default not-closed (presumably still in progress).
+  if(out.closed===undefined) out.closed = out.status!=='open';
+  return out;
+}
+function migrateAll(jobs){ return (jobs||[]).map(migrateJob); }
+
+// MERGE — reconcile two versions of the SAME jobId (e.g. local vs. an incoming Drive backup).
+function unionById(a,b){
+  const seen=new Map();
+  [...(a||[]),...(b||[])].forEach(e=>{ if(e&&e.id!=null&&!seen.has(e.id)) seen.set(e.id,e); });
+  return [...seen.values()];
+}
+function pickPaidDate(a,b){ const d=[a.paidDate,b.paidDate].filter(Boolean).sort(); return d.length?d[0]:null; }
+function mergeJob(a,b){
+  const base = maxStr(a.updatedAt,b.updatedAt)===(a.updatedAt||'') ? {...a} : {...b};
+  base.paid = !!(a.paid||b.paid);            // monotonic: once paid, stays paid — never un-pays on merge
+  base.paidDate = pickPaidDate(a,b);
+  base.timesheet = unionById(a.timesheet,b.timesheet);  // logged hours are never lost on merge
+  base.status = base.paid ? 'paid' : base.status;
+  base.updatedAt = maxStr(a.updatedAt,b.updatedAt);
+  return base;
+}
+// Used in place of the job-half of applyBackupMerge (see hook 2 below). Customers + counters
+// keep their existing additive logic untouched — this only changes how JOB records reconcile.
+function mergeJobLists(local,incoming){
+  const byId=new Map();
+  (local||[]).forEach(j=>byId.set(j.jobId,j));
+  (incoming||[]).forEach(j=>{ byId.set(j.jobId, byId.has(j.jobId) ? mergeJob(byId.get(j.jobId),j) : j); });
+  return [...byId.values()].sort((x,y)=>maxStr(y.updatedAt,x.updatedAt)===y.updatedAt?1:-1);
+}
+
+// PER-REGO PROFILE — private/cash only. Car Guys stock is excluded on write (dealership cars are
+// sold and gone — not worth tracking), and the rego-blur lookup also checks customerType explicitly
+// before prefilling, so a rego that later returns as Car Guys stock can't inherit a stale profile.
+function upsertProfile(profiles,job){
+  const rego=(job.rego||'').toUpperCase(); if(!rego) return profiles;
+  if(job.customerType==='carguysinspection') return profiles;   // dealership stock — don't persist
+  const next={...profiles}; const prev=next[rego]||{};
+  next[rego]={ rego,
+    make:job.make||prev.make||'', model:job.model||prev.model||'',
+    lastOdo:job.odometer||prev.lastOdo||'',
+    custName:job.custName||prev.custName||'', custMobile:job.custMobile||prev.custMobile||'',
+    custEmail:job.custEmail||prev.custEmail||'', customerType:job.customerType||prev.customerType||'',
+    lastSeen:maxStr(job.updatedAt,prev.lastSeen) };
+  return next;
+}
+
+// QUARTER-ROLL — drop only paid jobs; open + unpaid-invoiced jobs carry forward. Every job (not
+// just dropped ones) is folded into profiles first, so a private customer's last-known details
+// persist even if their job happened to already be paid.
+function quarterRoll(jobs,profiles){
+  let prof={...(profiles||{})};
+  (jobs||[]).forEach(j=>{ prof=upsertProfile(prof,j); });
+  return { kept:(jobs||[]).filter(j=>j.status!=='paid'),
+           dropped:(jobs||[]).filter(j=>j.status==='paid'),
+           profiles:prof };
+}
+
+// INVOICE-TIME — surface the logged timesheet for read-off at generate time. Entries are shown
+// verbatim in the UI for Jamie's own write-up — never auto-converted into report prose.
+function timesheetSummary(job){
+  const entries=(job.timesheet||[]).slice().sort((a,b)=>(a.date>b.date?1:-1));
+  const totalHours=entries.reduce((s,e)=>s+(Number(e.hours)||0),0);
+  return {totalHours, entries};
+}
+
+// LOGGED HOURS BANNER — bridges Timesheet's logged hours into Report's Labour section. Shown
+// when a job loaded into Report (via restoreJob) has timesheet[] entries. The "Use" action only
+// fills the FIRST labour row, and only if that row is genuinely blank — never overwrites labour
+// already typed in (e.g. re-opening an old invoice to tweak wording shouldn't clobber it).
+function renderLoggedHoursBanner(snap){
+  const banner=document.getElementById('loggedHoursBanner');
+  if(!banner)return;
+  const summary=timesheetSummary(snap);
+  if(!summary.totalHours){banner.style.display='none';banner.innerHTML='';return;}
+  const firstRow=document.getElementById('labourRows')?.children[0];
+  const firstHoursInput=firstRow?.querySelectorAll('input')[1];
+  const rowIsBlank=firstHoursInput&&!firstHoursInput.value;
+  banner.style.display='block';
+  banner.innerHTML=`<div class="flag-banner" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+    <span><strong>${summary.totalHours}h logged</strong> against this job in Timesheet.</span>
+    ${rowIsBlank?`<button class="btn-flag" style="background:var(--navy);white-space:nowrap;flex-shrink:0;" onclick="fillLoggedHours(${summary.totalHours})">Use ${summary.totalHours}h</button>`:''}
+  </div>`;
+}
+function fillLoggedHours(hours){
+  const firstRow=document.getElementById('labourRows')?.children[0];
+  if(!firstRow)return;
+  const inputs=firstRow.querySelectorAll('input');
+  if(inputs[1])inputs[1].value=hours;
+  if(inputs[0]&&!inputs[0].value)inputs[0].value='Labour';
+  updateLabourTotal();
+  toast(`✓ ${hours}h added to Labour`);
+  document.getElementById('loggedHoursBanner').style.display='none';
+}
+// LOGGED NOTES BANNER — surfaces the notes logged against this job in Timesheet (e.g. "r+r spark
+// plugs") when it's opened in Report, with a one-tap button to drop them into the Job Notes box.
+// Non-destructive: it never overwrites what you've typed (appends), and only shows when notes exist.
+function renderLoggedNotesBanner(snap){
+  const banner=document.getElementById('loggedNotesBanner');
+  if(!banner)return;
+  const notes=((snap&&snap.timesheet)||[]).map(e=>(e.note||'').trim()).filter(Boolean);
+  if(!notes.length){banner.style.display='none';banner.innerHTML='';return;}
+  banner.style.display='block';
+  banner.innerHTML=`<div class="flag-banner" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;gap:10px;">
+    <span><strong>Notes logged in Timesheet:</strong> ${notes.map(escHtml).join(' · ')}</span>
+    <button class="btn-flag" style="background:var(--navy);white-space:nowrap;flex-shrink:0;" onclick="useLoggedNotes()">Use as job notes</button>
+  </div>`;
+}
+function useLoggedNotes(){
+  const job=getJobs().find(j=>j.jobId===resumedJobId);
+  const notes=job?(job.timesheet||[]).map(e=>(e.note||'').trim()).filter(Boolean):[];
+  if(!notes.length)return;
+  const ta=document.getElementById('notesInput');
+  const existing=(ta.value||'').trim();
+  ta.value=existing?existing+'\n'+notes.join('\n'):notes.join('\n');
+  autosave();
+  const b=document.getElementById('loggedNotesBanner');if(b)b.style.display='none';
+  toast('✓ Timesheet notes added to Job Notes');
+}
+
+// PROFILES STORAGE — new key, separate from jw_jobs. Mirrors getJobs()'s try/catch shape.
+function getProfiles(){ return Store.getProfiles(); }
+function saveProfiles(profiles){ Store.setProfiles(profiles); }
+
+// PATCH-BY-ID — small shared helper for the two cases that need to update a job already saved to
+// jw_jobs after the fact: (a) attaching driveFileId once the Drive upload resolves (hook 3 — the
+// upload isn't awaited before saveJobSnapshot runs, so there's nothing to "include at save time";
+// this patches it in afterward instead), and (b) marking a job paid from the Payments tab.
+// Bumps updatedAt so the change is visible to mergeJobLists on next sync. Silently no-ops if the
+// jobId is no longer present (e.g. deleted) rather than throwing.
+function patchJob(jobId,fields){
+  try{
+    const jobs=getJobs();
+    const idx=jobs.findIndex(j=>j.jobId===jobId);
+    if(idx===-1)return null;
+    jobs[idx]={...jobs[idx],...fields,updatedAt:new Date().toISOString()};
+    Store.setJobs(jobs);
+    return jobs[idx];
+  }catch(e){console.error('patchJob failed:',e);return null;}
+}
+
 function getInvoiceCounters(){
-  return {cg:parseInt(localStorage.getItem('jw_inv_cg')||'0'),c:parseInt(localStorage.getItem('jw_inv_c')||'0'),pc:parseInt(localStorage.getItem('jw_inv_pc')||'0')};
+  return Store.getCounters();
 }
 function mergeInvoiceCounters(incoming){
   if(!incoming)return;
   const cur=getInvoiceCounters();
-  localStorage.setItem('jw_inv_cg',Math.max(cur.cg,incoming.cg||0).toString());
-  localStorage.setItem('jw_inv_c',Math.max(cur.c,incoming.c||0).toString());
-  localStorage.setItem('jw_inv_pc',Math.max(cur.pc,incoming.pc||0).toString());
+  Store.setCounter('cg',Math.max(cur.cg,incoming.cg||0));
+  Store.setCounter('c',Math.max(cur.c,incoming.c||0));
+  Store.setCounter('pc',Math.max(cur.pc,incoming.pc||0));
 }
 function buildBackupObject(){
-  return {exportedAt:new Date().toISOString(),version:3,customers:getCustomers(),history:getHistory(),jobs:getJobs(),draft:JSON.parse(localStorage.getItem('jw_draft')||'null'),counters:getInvoiceCounters()};
+  return {exportedAt:new Date().toISOString(),version:3,customers:getCustomers(),history:getHistory(),jobs:getJobs(),profiles:getProfiles(),draft:Store.getDraft(),counters:getInvoiceCounters()};
 }
 // Merge an incoming backup into local data — same logic used by manual "Import & Merge" and Drive auto-restore
 function applyBackupMerge(backup,silent){
-  const incomingJobs=backup.jobs||[],incomingHist=backup.history||[],incomingCust=backup.customers||[];
+  const incomingJobs=backup.jobs||[],incomingHist=backup.history||[],incomingCust=backup.customers||[],incomingProf=backup.profiles||{};
   const existingJobs=getJobs();
   const existingJobIds=new Set(existingJobs.map(j=>j.jobId));
+  // HOOK 2 — job reconciliation now goes through mergeJobLists (last-write-wins by updatedAt,
+  // paid is monotonic, timesheet entries union) instead of the old additive-only "skip if jobId
+  // already exists" logic. newJobs count below is for the toast only — jobs that didn't exist
+  // locally before. Jobs that existed both places but changed (e.g. hours logged on another
+  // device, or paid status) are still reconciled by mergeJobLists even though they don't add to
+  // this count.
   const newJobs=incomingJobs.filter(j=>j.jobId&&!existingJobIds.has(j.jobId));
-  if(newJobs.length>0)localStorage.setItem('jw_jobs',JSON.stringify([...newJobs,...existingJobs].slice(0,500)));
+  const mergedJobs=mergeJobLists(existingJobs,incomingJobs).slice(0,500);
+  Store.setJobs(mergedJobs);
+  // Profiles merge by rego — newest lastSeen wins, same spirit as job merge by updatedAt.
+  const existingProf=getProfiles();
+  const mergedProf={...existingProf};
+  Object.keys(incomingProf).forEach(rego=>{
+    const inc=incomingProf[rego],loc=mergedProf[rego];
+    mergedProf[rego]=(!loc||maxStr(inc.lastSeen,loc.lastSeen)===inc.lastSeen)?inc:loc;
+  });
+  saveProfiles(mergedProf);
   const existingHist=getHistory();
   const existingHistKeys=new Set(existingHist.map(h=>`${h.rego}|${h.date}|${h.total}|${h.generatedAt}`));
   const newHist=incomingHist.filter(h=>!existingHistKeys.has(`${h.rego}|${h.date}|${h.total}|${h.generatedAt}`));
-  if(newHist.length>0)localStorage.setItem('jw_history',JSON.stringify([...newHist,...existingHist].slice(0,200)));
+  if(newHist.length>0)Store.setHistory([...newHist,...existingHist].slice(0,200));
   const existingCust=getCustomers();
   const existingCustNames=new Set(existingCust.map(c=>c.name.toLowerCase()));
   const newCust=incomingCust.filter(c=>c.name&&!existingCustNames.has(c.name.toLowerCase()));
-  if(newCust.length>0)localStorage.setItem('jw_customers',JSON.stringify([...newCust,...existingCust].slice(0,100)));
+  if(newCust.length>0)Store.setCustomers([...newCust,...existingCust].slice(0,100));
   mergeInvoiceCounters(backup.counters);
   if(!silent)toast(`✓ Merged: ${newJobs.length} jobs added · ${newHist.length} history · ${newCust.length} customers`);
   return {newJobs:newJobs.length,newHist:newHist.length,newCust:newCust.length};
@@ -670,11 +1174,12 @@ function initGDrive(){
   gDriveTokenClient=google.accounts.oauth2.initTokenClient({
     client_id:GDRIVE_CLIENT_ID,
     scope:GDRIVE_SCOPE,
-    callback:(resp)=>{
+    callback:async (resp)=>{
       if(resp&&resp.access_token){
         gDriveAccessToken=resp.access_token;
         gDriveTokenExpiry=Date.now()+((resp.expires_in||3600)*1000)-60000;
-        toast('✓ Google Drive connected');
+        toast(TEST_MODE?'✓ Drive connected — using isolated JW TEST folder':'✓ Google Drive connected');
+        try{await ensureDriveFolders(gDriveAccessToken);}catch(e){console.error('TEST folder setup failed:',e);toast('⚠ Could not set up JW TEST folder');}
         autoRestoreFromDrive(gDriveAccessToken);
         reconcileCarGuysCounter(gDriveAccessToken);
       }else{
@@ -769,6 +1274,23 @@ async function gdriveListFilenames(folderId,token){
   return names;
 }
 
+// Moves a file between two parent folders (the Payments "mark paid" Car Guys move: New →
+// Archive). Per the build spec: verify the parents actually flipped before treating the move
+// as done — a 200 response from the PATCH isn't, by itself, proof the file ended up where it
+// should. Files the app didn't create (no drive.file scope access) come back 404 here, which
+// the caller treats as "can't move it" rather than a hard failure — not a concern in practice
+// since every invoice PDF is app-generated.
+async function gdriveMoveFile(fileId,fromFolderId,toFolderId,token){
+  const res=await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?addParents=${toFolderId}&removeParents=${fromFolderId}&fields=id,parents`,{method:'PATCH',headers:{Authorization:'Bearer '+token}});
+  if(!res.ok)throw new Error('Drive move failed: '+res.status);
+  const data=await res.json();
+  const parents=data.parents||[];
+  if(!parents.includes(toFolderId)||parents.includes(fromFolderId)){
+    throw new Error('Drive move did not verify — parents did not flip as expected');
+  }
+  return data;
+}
+
 // "Jamie proof" check — runs at every connect. Doesn't trust any remembered counter;
 // looks at the actual highest CG number physically present across New Invoice + Archive,
 // and only ever pulls the local counter UP to match, never down. This is what makes Drive
@@ -785,9 +1307,9 @@ async function reconcileCarGuysCounter(token){
       const m=name.match(/^CG(\d+)_/);
       if(m){const n=parseInt(m[1],10);if(n>highest)highest=n;}
     });
-    const current=parseInt(localStorage.getItem('jw_inv_cg')||'0');
+    const current=Store.getCounter('cg');
     if(highest>current){
-      localStorage.setItem('jw_inv_cg',highest.toString());
+      Store.setCounter('cg',highest);
       toast(`✓ Counter corrected to match Drive: CG${String(highest).padStart(3,'0')}`);
     }
   }catch(err){
@@ -807,6 +1329,45 @@ async function gdriveDownloadFile(fileId,token){
   if(!res.ok)throw new Error('Drive download failed: '+res.status);
   return res.json();
 }
+async function gdriveListFiles(folderId,token){
+  let files=[],pageToken=null;
+  do{
+    const q=encodeURIComponent(`'${folderId}' in parents and trashed=false`);
+    let url=`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name),nextPageToken&pageSize=1000`;
+    if(pageToken)url+=`&pageToken=${pageToken}`;
+    const res=await fetch(url,{headers:{Authorization:'Bearer '+token}});
+    if(!res.ok)throw new Error('Drive list failed: '+res.status);
+    const data=await res.json();
+    files=files.concat(data.files||[]); pageToken=data.nextPageToken;
+  }while(pageToken);
+  return files;
+}
+async function gdriveDeleteFile(fileId,token){
+  const res=await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`,{method:'DELETE',headers:{Authorization:'Bearer '+token}});
+  if(!res.ok&&res.status!==404)throw new Error('Drive delete failed: '+res.status);
+}
+// Rolling ring — keep the newest SNAPSHOT_KEEP dated snapshots, delete older ones. Best-effort.
+async function pruneSnapshots(folderId,token){
+  try{
+    const snaps=(await gdriveListFiles(folderId,token)).filter(f=>/^JW_Snapshot_/.test(f.name)).sort((a,b)=>a.name<b.name?1:-1);
+    for(const f of snaps.slice(SNAPSHOT_KEEP)) await gdriveDeleteFile(f.id,token);
+  }catch(e){console.error('Snapshot prune failed:',e);}
+}
+// TEST_MODE only: build/find an isolated "JW TEST" folder tree and point GDRIVE_FOLDERS at it, so
+// nothing a test build writes can land in the real Car Guys/admin folders. No-op in live mode.
+async function ensureDriveFolders(token){
+  if(!TEST_MODE){gDriveFoldersReady=true;return;}
+  if(gDriveFoldersReady)return;
+  const root=await gdriveGetOrCreateFolder('JW TEST','root',token);
+  const [nw,ar,pv,ad]=await Promise.all([
+    gdriveGetOrCreateFolder('New Invoices',root,token),
+    gdriveGetOrCreateFolder('Archive',root,token),
+    gdriveGetOrCreateFolder('Private',root,token),
+    gdriveGetOrCreateFolder('Admin',root,token),
+  ]);
+  GDRIVE_FOLDERS={carGuysNew:nw,carGuysArchive:ar,privateRoot:pv,adminBackups:ad};
+  gDriveFoldersReady=true;
+}
 
 // Runs automatically right after connecting — pulls the latest cross-device snapshot in,
 // non-destructively (merge only), so a fresh device picks up the current invoice counters
@@ -814,9 +1375,12 @@ async function gdriveDownloadFile(fileId,token){
 async function autoRestoreFromDrive(token){
   try{
     const autoSyncFolderId=await gdriveGetAutoSyncFolder(token);
-    const latest=await gdriveMostRecentFile(autoSyncFolderId,token);
-    if(!latest)return; // nothing synced yet — nothing to restore
-    const backup=await gdriveDownloadFile(latest.id,token);
+    // Prefer the canonical file; fall back to the newest snapshot / legacy AutoSync if absent
+    // (e.g. first run after the upgrade, before a canonical file has been written).
+    let fileId=await gdriveFindFile(CANONICAL_FILE,autoSyncFolderId,token);
+    if(!fileId){const latest=await gdriveMostRecentFile(autoSyncFolderId,token);fileId=latest&&latest.id;}
+    if(!fileId)return; // nothing synced yet — nothing to restore
+    const backup=await gdriveDownloadFile(fileId,token);
     const result=applyBackupMerge(backup,true);
     if(result.newJobs||result.newHist||result.newCust){
       toast(`✓ Synced from Drive: ${result.newJobs} jobs, ${result.newCust} customers`);
@@ -833,9 +1397,10 @@ async function gdriveGetAutoSyncFolder(token){
   return gDriveAutoSyncFolderId;
 }
 
-async function syncToGDrive(d,pdfBlob,filename,invoiceNumber){
+async function syncToGDrive(d,pdfBlob,filename,invoiceNumber,jobId){
   const token=getGDriveToken();
   if(!token){toast('⚠ Drive not connected — saved locally only');return;}
+  let uploadResult;
   try{
     let targetFolderId;
     if(d.isCarGuys){
@@ -844,24 +1409,45 @@ async function syncToGDrive(d,pdfBlob,filename,invoiceNumber){
       const custFolderId=await gdriveGetOrCreateFolder(d.custName||'Unknown Customer',GDRIVE_FOLDERS.privateRoot,token);
       targetFolderId=await gdriveGetOrCreateFolder(`${d.make||''} ${d.model||''}`.trim()||'Unknown Vehicle',custFolderId,token);
     }
-    await gdriveUploadFile(pdfBlob,filename,targetFolderId,token);
-    // Backup JSON goes into Admin/Backups/Auto Sync — separate from your manual backups, never mixed in
+    uploadResult=await gdriveUploadFile(pdfBlob,filename,targetFolderId,token);
+  }catch(err){
+    console.error('Drive PDF sync failed:',err);
+    toast('⚠ Drive sync failed — saved locally only');
+    return; // PDF itself didn't make it — no point attempting the backup snapshot
+  }
+  // HOOK 3 — the upload above isn't awaited before saveJobSnapshot runs back in generatePDF (the
+  // job record is saved to jw_jobs synchronously, instantly, regardless of Drive). So there's no
+  // moment at save-time to "include" the Drive file id — it doesn't exist yet. Patch it in now
+  // that the upload has actually resolved. If jobId is missing (shouldn't happen, but don't let
+  // a Drive timing issue throw) or the job's gone, patchJob no-ops safely.
+  if(jobId&&uploadResult&&uploadResult.id){
+    patchJob(jobId,{driveFileId:uploadResult.id});
+  }
+  // PDF is confirmed uploaded at this point. Backup snapshot is a separate, lower-stakes step —
+  // if it stumbles (e.g. token timing out partway through), that's not the same as the invoice failing.
+  try{
     const autoSyncFolderId=await gdriveGetAutoSyncFolder(token);
-    const backupBlob=new Blob([JSON.stringify(buildBackupObject(),null,2)],{type:'application/json'});
-    const backupName=`JW_AutoSync_${new Date().toISOString().slice(0,10)}_${invoiceNumber}.json`;
-    await gdriveUploadFile(backupBlob,backupName,autoSyncFolderId,token);
+    const backupStr=JSON.stringify(buildBackupObject(),null,2);
+    // Canonical file: ONE JSON, overwritten in place — the current source of truth (replaces the
+    // old pile of per-invoice JW_AutoSync_*.json files).
+    await gdriveUploadFile(new Blob([backupStr],{type:'application/json'}),CANONICAL_FILE,autoSyncFolderId,token);
+    // Rolling ring: also drop a dated snapshot and prune to the newest SNAPSHOT_KEEP, so recovery
+    // points exist without the folder growing forever.
+    const snapName=`JW_Snapshot_${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+    await gdriveUploadFile(new Blob([backupStr],{type:'application/json'}),snapName,autoSyncFolderId,token);
+    await pruneSnapshots(autoSyncFolderId,token);
     toast('✓ Synced to Google Drive');
   }catch(err){
-    console.error('Drive sync failed:',err);
-    toast('⚠ Drive sync failed — saved locally only');
+    console.error('Drive backup sync failed:',err);
+    toast('✓ Invoice synced — backup snapshot skipped this time');
   }
 }
 
 function getNextInvoiceNumber(customerType){
   const prefix=customerType==='carguysinspection'?'CG':customerType==='cash'?'C':'PC';
-  const key=customerType==='carguysinspection'?'jw_inv_cg':customerType==='cash'?'jw_inv_c':'jw_inv_pc';
-  const next=parseInt(localStorage.getItem(key)||'0')+1;
-  localStorage.setItem(key,next.toString());
+  const cn=customerType==='carguysinspection'?'cg':customerType==='cash'?'c':'pc';
+  const next=Store.getCounter(cn)+1;
+  Store.setCounter(cn,next);
   return prefix+String(next).padStart(3,'0');
 }
 function handlePhotoUpload(event){Array.from(event.target.files).forEach(file=>{compressImage(file,1000,function(dataUrl){jobPhotos.push({dataUrl,caption:''});renderPhotoGrid();});});event.target.value='';}
@@ -879,12 +1465,40 @@ const TYPE_LABELS={full:'Full Inspection',service:'Service',safety:'Safety Check
 function onCustomerTypeChange(){const ct=document.getElementById('customerType').value,p=ct==='private'||ct==='cash';document.getElementById('privateFields').style.display=p?'block':'none';document.getElementById('odoField').style.display=p?'flex':'none';}
 function toast(msg,dur=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
 function isRepairOnly(){return document.getElementById('reportType').value==='repair';}
+// Report Type drives which sections are active — like Customer Type, it takes effect INSTANTLY
+// (wired to the select's onchange). Visibility only: never clears inputs, so flipping types
+// preserves what you'd entered and flipping back restores it. The PDF is gated by type too
+// (see generatePDF), so hidden repair text never leaks into an inspection report.
+//   inspection-only  → inspection cards;  repair-only → fault/rect (job notes) in their place;
+//   combo (*_repair) → inspection cards WITH fault/rect below.
+function applyReportTypeLayout(){
+  const rt=document.getElementById('reportType').value;
+  const hasInspection = rt!=='repair';
+  const isSafety = rt==='safety'||rt==='safety_repair';
+  const hasRepair = rt==='repair'||rt.endsWith('_repair');
+  const show=(id,on)=>{const el=document.getElementById(id);if(el)el.style.display=on?'block':'none';};
+  show('exteriorCard',hasInspection);
+  show('bonnetCard',hasInspection);
+  show('wheelsCard',hasInspection);
+  show('chassisCard',hasInspection&&!isSafety);
+  show('repairFindingsCard',rt==='repair');   // "Assessed Items" table — repair-only (matches PDF gating)
+  show('faultCard',hasRepair);
+  show('rectCard',hasRepair);
+  if(!hasInspection)show('findingsCard',false);
+  document.getElementById('previewSection').style.display='block';
+}
 function isCarGuys(){return document.getElementById('customerType').value==='carguysinspection';}
 function isCash(){return document.getElementById('customerType').value==='cash';}
 function escHtml(s){return s?s.replace(/&/g,'&amp;').replace(/"/g,'&quot;'):'';};
 function toggleSection(b,c){const body=document.getElementById(b),chev=document.getElementById(c),open=body.style.display!=='none';body.style.display=open?'none':'block';if(chev)chev.style.transform=open?'rotate(-90deg)':'rotate(0deg)';}
 function showCollapsible(card,body,chev){document.getElementById(card).style.display='block';document.getElementById(body).style.display='block';const c=document.getElementById(chev);if(c)c.style.transform='rotate(0deg)';}
 function todayDate(){const d=new Date();return`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;}
+// LOCAL date key (YYYY-MM-DD) for Day Hours storage/comparison. Deliberately NOT
+// toISOString().slice(0,10) — that converts to UTC first, which silently rolls the date back
+// by one in any timezone ahead of UTC (e.g. Australia) during the early-morning hours local
+// time, before UTC midnight has caught up. Built from the same local getDate/getMonth/getFullYear
+// fields as todayDate() so the two never disagree with each other.
+function localTodayKey(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 function fixDate(str){if(!str)return todayDate();const m=str.match(/(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);if(!m)return str;let[,d,mo,y]=m;if(y.length===2)y='20'+y;const yr=parseInt(y),now=new Date().getFullYear();if(Math.abs(yr-now)>1&&Math.abs(yr-now)<3)y=String(now);return`${d.padStart(2,'0')}/${mo.padStart(2,'0')}/${y}`;}
 
 // ═══════════════════════════════════════════
@@ -1378,21 +1992,13 @@ function buildParseSummary(parsed,raw){
 // ═══════════════════════════════════════════
 function parseAndPreview(){
   const notes=document.getElementById('notesInput').value.trim();
-  if(!notes){toast('Please enter your job notes first.');return;}
+  // Blank inspection notes are allowed — open the full report with an empty parser and fill it
+  // in manually (e.g. a repair job with no inspection shorthand). No hard block on empty.
   const dateEl=document.getElementById('jobDate');
   if(dateEl.value)dateEl.value=fixDate(dateEl.value);else dateEl.value=todayDate();
   const parsed=parseNotes(notes);
-  const repairOnly=isRepairOnly();
-  const rt=document.getElementById('reportType').value;
-  const isSafety=rt==='safety'||rt==='safety_repair';
-  ['exteriorCard','bonnetCard','wheelsCard'].forEach(id=>{document.getElementById(id).style.display=repairOnly?'none':'block';});
-  document.getElementById('repairFindingsCard').style.display=repairOnly?'block':'none';
-  document.getElementById('chassisCard').style.display=(repairOnly||isSafety)?'none':'block';
-  ['faultCard','rectCard','additionalCard','reimburseCard','deductCard','stockCard','privatePartsCard'].forEach(id=>{document.getElementById(id).style.display='none';});
-  if(repairOnly){
-    document.getElementById('faultCard').style.display='block';
-    document.getElementById('rectCard').style.display='block';
-  }
+  applyReportTypeLayout();
+  ['additionalCard','reimburseCard','deductCard','stockCard','privatePartsCard'].forEach(id=>{document.getElementById(id).style.display='none';});
   if(parsed.findings.length>0)showCollapsible('findingsCard','findingsBody','findingsChevron');
   else document.getElementById('findingsCard').style.display='none';
   if(!isCarGuys())showCollapsible('privatePartsCard','privatePartsBody','privatePartsChevron');
@@ -1747,10 +2353,11 @@ function generatePDF(previewOnly=false){
     return{table:{widths:['*'],body:body},layout:{hLineWidth:function(){return 0.3;},vLineWidth:function(){return 0;},hLineColor:function(){return C.grey;}},unbreakable:true,margin:[0,0,0,16]};
   }
 
-  var faultLines2=d.faultInput?d.faultInput.split('\n').filter(Boolean):[];
+  var isRepairType=d.reportType==='repair'||(d.reportType||'').endsWith('_repair');
+  var faultLines2=(isRepairType&&d.faultInput)?d.faultInput.split('\n').filter(Boolean):[];
   if(faultLines2.length>0) content.push(textSec('FAULT',faultLines2));
 
-  var rectLines2=d.rectInput?d.rectInput.split('\n').filter(Boolean):[];
+  var rectLines2=(isRepairType&&d.rectInput)?d.rectInput.split('\n').filter(Boolean):[];
   if(rectLines2.length>0) content.push(textSec('RECTIFICATION',rectLines2));
 
   if(d.showWorkCompleted!==false&&d.workCompleted.length>0)
@@ -1936,14 +2543,15 @@ function generatePDF(previewOnly=false){
         const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),1000);
       }
       // Drive sync — best-effort, never blocks or breaks the local save above
-      syncToGDrive(d,blob,filename,invoiceNumber);
+      syncToGDrive(d,blob,filename,invoiceNumber,snap.jobId);
     });
     saveJobSnapshot(snap,total.toFixed(2),invoiceNumber);
     saveToHistory(d,total.toFixed(2),invoiceNumber);
-    if(!d.isCarGuys&&d.custName)saveCustomer(d.custName,d.custMobile,d.custEmail);
+    // customer list is derived from the saved job record now — no separate saveCustomer needed
     toast(`\u2713 ${invoiceNumber} generated & saved!`);autosave();
     sessionInvoiceNumber=null; // spent — next Generate & Save always pulls a fresh number, never reused
     isEditingResumedJob=false;
+    resumedJobId=null;
   }
 }
 
@@ -1974,23 +2582,60 @@ function collectCompleteSnapshot(){
   snap.deduct=[];Array.from((document.getElementById('deductRows')||{children:[]}).children).forEach(row=>{const inputs=row.querySelectorAll('input');if(inputs[0]&&inputs[0].value)snap.deduct.push({item:inputs[0].value,partNo:inputs[1]?inputs[1].value:'',supplier:inputs[2]?inputs[2].value:'',qty:'1',cost:parseFloat(inputs[3]?inputs[3].value:0)||0});});
   snap.reimburse=[];Array.from((document.getElementById('reimburseRows')||{children:[]}).children).forEach(row=>{const inputs=row.querySelectorAll('input');if(inputs[0]&&inputs[0].value)snap.reimburse.push({item:inputs[0].value,partNo:inputs[1]?inputs[1].value:'',supplier:inputs[2]?inputs[2].value:'',qty:'1',cost:parseFloat(inputs[3]?inputs[3].value:0)||0});});
   snap.privateParts=[];Array.from((document.getElementById('privatePartsRows')||{children:[]}).children).forEach(row=>{const inputs=row.querySelectorAll('input');if(inputs[0]&&inputs[0].value)snap.privateParts.push({item:inputs[0].value,source:inputs[1]?inputs[1].value:'',qty:inputs[2]?inputs[2].value:'1',cost:parseFloat(inputs[3]?inputs[3].value:0)||0});});
-  snap.jobId=Date.now().toString();snap.savedAt=new Date().toLocaleString('en-AU');snap.filename=`${snap.rego}_${snap.make}_${snap.model}.pdf`.replace(/\s+/g,'_');
+  snap.jobId=resumedJobId||Date.now().toString();snap.savedAt=new Date().toLocaleString('en-AU');snap.filename=`${snap.rego}_${snap.make}_${snap.model}.pdf`.replace(/\s+/g,'_');
   return snap;
 }
-function saveJobSnapshot(snap,invoiceTotal,invoiceNumber){snap.invoiceTotal=invoiceTotal;snap.invoiceNumber=invoiceNumber||'';try{let jobs=JSON.parse(localStorage.getItem('jw_jobs')||'[]');jobs.unshift(snap);if(jobs.length>500)jobs=jobs.slice(0,500);localStorage.setItem('jw_jobs',JSON.stringify(jobs));}catch(e){console.error('Snapshot save failed:',e);}}
-function getJobs(){try{return JSON.parse(localStorage.getItem('jw_jobs')||'[]');}catch(e){return[];}}
-function deleteJob(jobId){if(!confirm('Delete this job? This cannot be undone.'))return;let jobs=getJobs().filter(j=>j.jobId!==jobId);localStorage.setItem('jw_jobs',JSON.stringify(jobs));toast('Job deleted');renderHistory();}
+// HOOK 4 — update-in-place when re-saving a resumed job, instead of unshifting a duplicate.
+// If jobId already exists in jw_jobs, lifecycle fields (status/openedAt/timesheet/paid/
+// paidDate/driveFileId) carry forward from the existing record rather than being wiped by the
+// fresh bare snapshot — a regenerate is a report-content edit, not a new job opening, and must
+// not silently un-pay a job or orphan hours already logged against it.
+function saveJobSnapshot(snap,invoiceTotal,invoiceNumber){
+  snap.invoiceTotal=invoiceTotal;snap.invoiceNumber=invoiceNumber||'';
+  try{
+    let jobs=getJobs();
+    const idx=jobs.findIndex(j=>j.jobId===snap.jobId);
+    const now=new Date().toISOString();
+    if(idx!==-1){
+      const prev=jobs[idx];
+      snap.openedAt=prev.openedAt||now;
+      snap.timesheet=Array.isArray(prev.timesheet)?prev.timesheet:[];
+      snap.paid=!!prev.paid;
+      snap.paidDate=prev.paidDate||null;
+      snap.driveFileId=prev.driveFileId||null;
+      snap.status=prev.paid?'paid':'invoiced'; // regenerating an invoiced/paid job keeps it there — only New Quarter or Payments change status otherwise
+      // CLOSED — generating an invoice is the close trigger (Jamie's call: no separate "Close
+      // Job" button needed, this already is the real-world close action). Set on generate/save
+      // itself, never gated on Drive sync succeeding — local save is instant and unconditional,
+      // Drive is best-effort, and closing shouldn't depend on having signal at the time.
+      snap.closed=true;
+      snap.updatedAt=now;
+      jobs[idx]=snap;
+    }else{
+      snap.openedAt=snap.openedAt||now;
+      snap.timesheet=Array.isArray(snap.timesheet)?snap.timesheet:[];
+      snap.paid=false;snap.paidDate=null;snap.driveFileId=null;
+      snap.status='invoiced'; // generate always produces an invoiced job — open jobs only exist via the Timesheet tab pre-invoice
+      snap.closed=true; // same close trigger applies to a job generated from scratch in Report
+      snap.updatedAt=now;
+      jobs.unshift(snap);
+    }
+    if(jobs.length>500)jobs=jobs.slice(0,500);
+    Store.setJobs(jobs);
+  }catch(e){console.error('Snapshot save failed:',e);}
+}
+function getJobs(){ return Store.getJobs(); }
+function deleteJob(jobId){if(!confirm('Delete this job? This cannot be undone.'))return;let jobs=getJobs().filter(j=>j.jobId!==jobId);Store.setJobs(jobs);toast('Job deleted');renderHistory();}
 
 // ═══════════════════════════════════════════
 //  RESTORE JOB
 // ═══════════════════════════════════════════
 function restoreJob(jobId){
   const snap=getJobs().find(j=>j.jobId===jobId);if(!snap){toast('Job not found.');return;}closeHistory();
+  resumedJobId=jobId; // remember which record this is — re-saving below must update it, not clone a new one
   document.getElementById('customerType').value=snap.customerType||'carguysinspection';document.getElementById('reportType').value=snap.reportType||'full';document.getElementById('rego').value=snap.rego||'';document.getElementById('jobDate').value=snap.date||'';document.getElementById('vehicleMake').value=snap.make||'';document.getElementById('vehicleModel').value=snap.model||'';document.getElementById('custName').value=snap.custName||'';document.getElementById('custMobile').value=snap.custMobile||'';document.getElementById('custEmail').value=snap.custEmail||'';document.getElementById('odometer').value=snap.odometer||'';document.getElementById('notesInput').value=snap.notes||'';onCustomerTypeChange();
-  const repairOnly=snap.reportType==='repair',isSafety=snap.reportType==='safety'||snap.reportType==='safety_repair';
-  ['exteriorCard','bonnetCard','wheelsCard'].forEach(id=>{document.getElementById(id).style.display=repairOnly?'none':'block';});
-  document.getElementById('repairFindingsCard').style.display=repairOnly?'block':'none';document.getElementById('chassisCard').style.display=(repairOnly||isSafety)?'none':'block';
-  ['findingsCard','faultCard','additionalCard','reimburseCard','deductCard','stockCard','privatePartsCard'].forEach(id=>{document.getElementById(id).style.display='none';});
+  applyReportTypeLayout();
+  ['additionalCard','reimburseCard','deductCard','stockCard','privatePartsCard'].forEach(id=>{document.getElementById(id).style.display='none';});
   if(snap.exterior){buildExteriorUI({lights:{},wipers:{},seatbelts:{},doors:{},windows:{},ac:{},dtc:{}});EXTERIOR_ITEMS.forEach(item=>{const saved=snap.exterior[item.key];if(!saved)return;const s=document.getElementById(`ext_${item.key}_status`),n=document.getElementById(`ext_${item.key}_note`);if(s)s.value=saved.status||'unknown';if(n)n.value=saved.note||'';});}
   if(snap.bonnet){buildBonnetUI({belts:snap.bonnet.belts,hoses:snap.bonnet.hoses,battery:null,coolant:null,brakefluid:snap.bonnet.brakefluid,powersteering:snap.bonnet.powersteering,psNA:false,levelsNote:snap.bonnetLevelsNote||'',timingCover:snap.bonnet.timingCover,rockerCover:snap.bonnet.rockerCover,engineMount:snap.bonnet.engineMount,transMount:snap.bonnet.transMount});BONNET_ITEMS.forEach(item=>{const saved=snap.bonnet[item.key];if(!saved)return;const s=document.getElementById(`bon_${item.key}_status`),n=document.getElementById(`bon_${item.key}_note`);if(s)s.value=saved.status||'unknown';if(n)n.value=saved.note||'';});const levEl=document.getElementById('bonnetLevelsNoteText');if(levEl&&snap.bonnetLevelsNote){levEl.value=snap.bonnetLevelsNote;document.getElementById('bonnetLevelsNote').style.display='block';}}
   if(snap.wheels){
@@ -2005,12 +2650,14 @@ function restoreJob(jobId){
   const chassisTbody=document.getElementById('chassisRows');chassisTbody.innerHTML='';(snap.chassis||[]).forEach(row=>addChassisTableRow(chassisTbody,row.component,row.status,row.notes));
   if(snap.findings&&snap.findings.length>0){showCollapsible('findingsCard','findingsBody','findingsChevron');buildFindingsTableUI('findings',snap.findings);}
   buildFindingsTableUI('repairFindings',snap.repairFindings||[]);
-  if(snap.faultInput||snap.faultRect){document.getElementById('faultCard').style.display='block';document.getElementById('rectCard').style.display='block';document.getElementById('faultInput').value=snap.faultInput||snap.faultRect||'';document.getElementById('rectInput').value=snap.rectInput||'';}
+  document.getElementById('faultInput').value=snap.faultInput||snap.faultRect||'';document.getElementById('rectInput').value=snap.rectInput||'';
   const saiEl=document.getElementById('showAssessedItems');if(saiEl)saiEl.checked=snap.showAssessedItems!==false;
   const swcEl=document.getElementById('showWorkCompleted');if(swcEl)swcEl.checked=snap.showWorkCompleted!==false;
   document.getElementById('workCompleted').value=snap.workCompleted||'';document.getElementById('quickChecksDesc').value=snap.quickChecksDesc||'';
   if(snap.additionalNotes&&snap.additionalNotes.length>0){showCollapsible('additionalCard','additionalBody','additionalChevron');document.getElementById('additionalNotesRows').innerHTML='';snap.additionalNotes.forEach(n=>addAdditionalNote(n));}
   buildLabourUI(snap.labour||[]);
+  renderLoggedHoursBanner(snap);
+  renderLoggedNotesBanner(snap);
   if(snap.stock&&snap.stock.length>0){showCollapsible('stockCard','stockBody','stockChevron');document.getElementById('stockRows').innerHTML='';snap.stock.forEach(s=>{addPart('stock');const rows=document.getElementById('stockRows').children,last=rows[rows.length-1],inputs=last.querySelectorAll('input');if(inputs[0])inputs[0].value=s.item;if(inputs[1])inputs[1].value=s.qty;});}
   if(snap.reimburse&&snap.reimburse.length>0){showCollapsible('reimburseCard','reimburseBody','reimburseChevron');document.getElementById('reimburseRows').innerHTML='';snap.reimburse.forEach(r=>{addPart('reimburse');const rows=document.getElementById('reimburseRows').children,last=rows[rows.length-1],inputs=last.querySelectorAll('input');if(inputs[0])inputs[0].value=r.item;if(inputs[1])inputs[1].value=r.partNo;if(inputs[2])inputs[2].value=r.supplier;if(inputs[3])inputs[3].value=r.cost;});}
   if(snap.deduct&&snap.deduct.length>0){showCollapsible('deductCard','deductBody','deductChevron');document.getElementById('deductRows').innerHTML='';snap.deduct.forEach(r=>{addPart('deduct');const rows=document.getElementById('deductRows').children,last=rows[rows.length-1],inputs=last.querySelectorAll('input');if(inputs[0])inputs[0].value=r.item;if(inputs[1])inputs[1].value=r.partNo;if(inputs[2])inputs[2].value=r.supplier;if(inputs[3])inputs[3].value=r.cost;});}
@@ -2040,17 +2687,73 @@ function renderHistory(){
   const totalGst=all.filter(j=>j.customerType!=='cash').reduce((s,j)=>s+(parseFloat(j.invoiceTotal)||0)/11,0);
   document.getElementById('historySummary').innerHTML=`<span>${all.length} job${all.length!==1?'s':''} shown</span><span>Total invoiced: <strong>$${totalAmt.toFixed(2)}</strong></span><span>GST collected: <strong>$${totalGst.toFixed(2)}</strong></span>`;
   if(!all.length){document.getElementById('historyList').innerHTML='<p style="color:#6b7a99;text-align:center;padding:20px;">No jobs found.</p>';return;}
-  document.getElementById('historyList').innerHTML=all.map(j=>`<div class="job-card"><div class="job-card-top"><div><div style="font-weight:bold;font-size:14px;color:#1a2744;">${j.invoiceNumber?`<span style="color:#2a3f6f;font-family:'Courier New',monospace;font-size:12px;margin-right:6px;">${j.invoiceNumber}</span>`:''}${j.rego} · ${j.make||''} ${j.model||''}</div><div style="font-size:12px;color:#6b7a99;margin-top:2px;">${TYPE_LABELS[j.reportType]||j.reportType||''} · ${j.customerType==='carguysinspection'?'The Car Guys':(j.custName||'Private')}</div><div style="font-size:11px;color:#aaa;margin-top:2px;">${j.savedAt||j.date||''}</div></div><div style="text-align:right;"><div style="font-weight:bold;font-size:15px;color:#1a7a3c;">$${parseFloat(j.invoiceTotal||0).toFixed(2)}</div><div style="font-size:11px;color:#aaa;">${j.date||''}</div></div></div><div class="job-card-actions">${j._isSnap&&j.jobId?`<button class="btn-view-job" onclick="restoreJob('${j.jobId}')">↩ View / Edit</button>`:`<span style="font-size:11px;color:#aaa;padding:6px 0;">Legacy record</span>`}${j._isSnap&&j.jobId?`<button class="btn-del-job" onclick="deleteJob('${j.jobId}')">✕ Delete</button>`:''}</div></div>`).join('');
+  document.getElementById('historyList').innerHTML=all.map(j=>`<div class="job-card"><div class="job-card-top"><div><div style="font-weight:bold;font-size:14px;color:#1a2744;">${j.invoiceNumber?`<span style="color:#2a3f6f;font-family:'Courier New',monospace;font-size:12px;margin-right:6px;">${j.invoiceNumber}</span>`:''}${j.rego} · ${j.make||''} ${j.model||''}</div><div style="font-size:12px;color:#6b7a99;margin-top:2px;">${TYPE_LABELS[j.reportType]||j.reportType||''} · ${j.customerType==='carguysinspection'?'The Car Guys':(j.custName||'Private')}</div><div style="font-size:11px;color:#aaa;margin-top:2px;">${j.savedAt||j.date||''}</div></div><div style="text-align:right;"><div style="font-weight:bold;font-size:15px;color:#1a7a3c;">$${parseFloat(j.invoiceTotal||0).toFixed(2)}</div><div style="font-size:11px;color:#aaa;">${j.date||''}</div></div></div><div class="job-card-actions">${j._isSnap&&j.jobId?`<button class="btn-view-job" onclick="restoreJob('${j.jobId}')">↩ View / Edit</button>`:`<span style="font-size:11px;color:#aaa;padding:6px 0;">Legacy record</span>`}${j._isSnap&&j.jobId&&j.closed?`<button class="btn-view-job" style="background:var(--amber);" onclick="reopenArchivedJob('${j.jobId}');closeHistory();">↩ Reopen in Timesheet</button>`:''}${j._isSnap&&j.jobId?`<button class="btn-del-job" onclick="deleteJob('${j.jobId}')">✕ Delete</button>`:''}</div></div>`).join('');
 }
 
 // ═══════════════════════════════════════════
 //  SAVE / LOAD
 // ═══════════════════════════════════════════
-function autosave(){try{const snap=collectCompleteSnapshot();snap.savedAt=new Date().toLocaleTimeString();localStorage.setItem('jw_draft',JSON.stringify(snap));const el=document.getElementById('savedIndicator');if(el)el.textContent='Saved '+snap.savedAt;}catch(e){}}
-function loadSaved(){try{const raw=localStorage.getItem('jw_draft');if(!raw){toast('No saved draft found.');return;}const snap=JSON.parse(raw);document.getElementById('customerType').value=snap.customerType||'carguysinspection';document.getElementById('reportType').value=snap.reportType||'full';document.getElementById('rego').value=snap.rego||'';document.getElementById('jobDate').value=snap.date||'';document.getElementById('vehicleMake').value=snap.make||'';document.getElementById('vehicleModel').value=snap.model||'';document.getElementById('custName').value=snap.custName||'';document.getElementById('custMobile').value=snap.custMobile||'';document.getElementById('custEmail').value=snap.custEmail||'';document.getElementById('odometer').value=snap.odometer||'';document.getElementById('notesInput').value=snap.notes||'';onCustomerTypeChange();toast(`↩ Draft restored (${snap.savedAt||''})`);}catch(e){toast('Error loading draft.');}}
+function autosave(){try{const snap=collectCompleteSnapshot();snap.savedAt=new Date().toLocaleTimeString();Store.setDraft(snap);const el=document.getElementById('savedIndicator');if(el)el.textContent='Saved '+snap.savedAt;}catch(e){}}
+function loadSaved(){try{const snap=Store.getDraft();if(!snap){toast('No saved draft found.');return;}document.getElementById('customerType').value=snap.customerType||'carguysinspection';document.getElementById('reportType').value=snap.reportType||'full';document.getElementById('rego').value=snap.rego||'';document.getElementById('jobDate').value=snap.date||'';document.getElementById('vehicleMake').value=snap.make||'';document.getElementById('vehicleModel').value=snap.model||'';document.getElementById('custName').value=snap.custName||'';document.getElementById('custMobile').value=snap.custMobile||'';document.getElementById('custEmail').value=snap.custEmail||'';document.getElementById('odometer').value=snap.odometer||'';document.getElementById('notesInput').value=snap.notes||'';onCustomerTypeChange();toast(`↩ Draft restored (${snap.savedAt||''})`);}catch(e){toast('Error loading draft.');}}
+// UNDO CLEAR — opt-in (hamburger > Settings, off unless enabled... wait, default below). Captures
+// a snapshot of the form via collectCompleteSnapshot (already a pure read of every field, no side
+// effects) BEFORE clearAll wipes anything, then offers 30 seconds to restore it. Scoped narrowly to
+// Clear specifically — does not touch jw_jobs, Payments, or anything already saved; clearAll never
+// reached that data in the first place, so there's nothing broader to protect here.
+let undoClearSnapshot=null,undoClearTimer=null;
+function loadUndoClearSetting(){
+  const saved=Store.getUndoClearRaw();
+  const enabled=saved===null?true:saved==='true'; // default ON — safety net, not opt-in busywork
+  const toggle=document.getElementById('undoClearToggle');
+  if(toggle)toggle.checked=enabled;
+  return enabled;
+}
+function saveUndoClearSetting(){
+  const enabled=document.getElementById('undoClearToggle').checked;
+  Store.setUndoClear(enabled);
+}
+function isUndoClearEnabled(){
+  const saved=Store.getUndoClearRaw();
+  return saved===null?true:saved==='true';
+}
+function showUndoBanner(){
+  const banner=document.getElementById('undoBanner');
+  banner.style.display='flex';
+  clearTimeout(undoClearTimer);
+  undoClearTimer=setTimeout(()=>{banner.style.display='none';undoClearSnapshot=null;},30000);
+}
+function undoClear(){
+  if(!undoClearSnapshot)return;
+  clearTimeout(undoClearTimer);
+  document.getElementById('undoBanner').style.display='none';
+  const snap=undoClearSnapshot;
+  document.getElementById('customerType').value=snap.customerType||'carguysinspection';document.getElementById('reportType').value=snap.reportType||'full';document.getElementById('rego').value=snap.rego||'';document.getElementById('jobDate').value=snap.date||'';document.getElementById('vehicleMake').value=snap.make||'';document.getElementById('vehicleModel').value=snap.model||'';document.getElementById('custName').value=snap.custName||'';document.getElementById('custMobile').value=snap.custMobile||'';document.getElementById('custEmail').value=snap.custEmail||'';document.getElementById('odometer').value=snap.odometer||'';document.getElementById('notesInput').value=snap.notes||'';
+  onCustomerTypeChange();
+  EXTERIOR_ITEMS.forEach(item=>{const v=snap.exterior&&snap.exterior[item.key];if(!v)return;const s=document.getElementById(`ext_${item.key}_status`),n=document.getElementById(`ext_${item.key}_note`);if(s)s.value=v.status;if(n)n.value=v.note;});
+  BONNET_ITEMS.forEach(item=>{const v=snap.bonnet&&snap.bonnet[item.key];if(!v)return;const s=document.getElementById(`bon_${item.key}_status`),n=document.getElementById(`bon_${item.key}_note`);if(s)s.value=v.status;if(n)n.value=v.note;});
+  const levEl=document.getElementById('bonnetLevelsNoteText');if(levEl)levEl.value=snap.bonnetLevelsNote||'';
+  WHEEL_POSITIONS.forEach(pos=>{const v=snap.wheels&&snap.wheels[pos.key];if(!v)return;const t=document.getElementById(`w_${pos.key}_tread`),p=document.getElementById(`w_${pos.key}_psi`),b=document.getElementById(`w_${pos.key}_brakes`),n=document.getElementById(`w_${pos.key}_note`);if(t)t.value=v.tread;if(p)p.value=v.pressure;if(b)b.value=v.brakes;if(n)n.value=v.note;});
+  const rotEl=document.getElementById('tyreRotate'),alnEl=document.getElementById('tyreAlign');if(rotEl)rotEl.checked=snap.tyreRotate;if(alnEl)alnEl.checked=snap.tyreAlign;
+  (snap.faultInput!==undefined)&&(document.getElementById('faultInput').value=snap.faultInput);
+  (snap.rectInput!==undefined)&&(document.getElementById('rectInput').value=snap.rectInput);
+  (snap.workCompleted!==undefined)&&(document.getElementById('workCompleted').value=snap.workCompleted);
+  (snap.quickChecksDesc!==undefined)&&(document.getElementById('quickChecksDesc').value=snap.quickChecksDesc);
+  buildLabourUI(snap.labour||[]);
+  (snap.chassis||[]).forEach(c=>{addChassisRow();const rows=document.getElementById('chassisRows').children,last=rows[rows.length-1],inputs=last.querySelectorAll('input'),sel=last.querySelector('select'),notesEl=last.querySelector('textarea');if(inputs[0])inputs[0].value=c.component;if(sel)sel.value=c.status;if(notesEl)notesEl.value=c.notes;});
+  (snap.findings||[]).forEach(f=>{addFindingRow();const rows=document.getElementById('findingsRows').children,last=rows[rows.length-1],inputs=last.querySelectorAll('input'),sel=last.querySelector('select');if(inputs[0])inputs[0].value=f.component;if(sel)sel.value=f.status;if(inputs[1])inputs[1].value=f.notes;});
+  (snap.additionalNotes||[]).forEach(a=>{addAdditionalNote();const rows=document.getElementById('additionalNotesRows').children,last=rows[rows.length-1],sel=last.querySelector('select'),inp=last.querySelector('input');if(sel)sel.value=a.urgency;if(inp)inp.value=a.note;});
+  if(snap.stock&&snap.stock.length){showCollapsible('stockCard','stockBody','stockChevron');snap.stock.forEach(s=>{addPart('stock');const rows=document.getElementById('stockRows').children,last=rows[rows.length-1],inputs=last.querySelectorAll('input');if(inputs[0])inputs[0].value=s.item;if(inputs[1])inputs[1].value=s.qty;});}
+  if(snap.deduct&&snap.deduct.length){showCollapsible('deductCard','deductBody','deductChevron');snap.deduct.forEach(d=>{addPart('deduct');const rows=document.getElementById('deductRows').children,last=rows[rows.length-1],inputs=last.querySelectorAll('input');if(inputs[0])inputs[0].value=d.item;if(inputs[1])inputs[1].value=d.partNo;if(inputs[2])inputs[2].value=d.supplier;if(inputs[3])inputs[3].value=d.cost;});}
+  if(snap.reimburse&&snap.reimburse.length){showCollapsible('reimburseCard','reimburseBody','reimburseChevron');snap.reimburse.forEach(r=>{addPart('reimburse');const rows=document.getElementById('reimburseRows').children,last=rows[rows.length-1],inputs=last.querySelectorAll('input');if(inputs[0])inputs[0].value=r.item;if(inputs[1])inputs[1].value=r.partNo;if(inputs[2])inputs[2].value=r.supplier;if(inputs[3])inputs[3].value=r.cost;});}
+  if(snap.privateParts&&snap.privateParts.length){showCollapsible('privatePartsCard','privatePartsBody','privatePartsChevron');snap.privateParts.forEach(p=>{addPart('privateParts');const rows=document.getElementById('privatePartsRows').children,last=rows[rows.length-1],inputs=last.querySelectorAll('input');if(inputs[0])inputs[0].value=p.item;if(inputs[1])inputs[1].value=p.source;if(inputs[2])inputs[2].value=p.qty;if(inputs[3])inputs[3].value=p.cost;});}
+  updateLabourTotal();
+  undoClearSnapshot=null;
+  toast('✓ Restored');
+}
 function clearAll(){
   if(!confirm('Clear all fields and start fresh?'))return;
-  localStorage.removeItem('jw_draft');
+  if(isUndoClearEnabled()){undoClearSnapshot=collectCompleteSnapshot();}
+  Store.clearDraft();
   ['notesInput','rego','jobDate','vehicleMake','vehicleModel','custName','custMobile','custEmail','odometer','faultInput','rectInput','workCompleted','quickChecksDesc','bonnetLevelsNoteText'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   ['exteriorRows','bonnetRows','wheelsBody','chassisRows','findingsRows','repairFindingsRows','additionalNotesRows','labourRows','stockRows','deductRows','reimburseRows','privatePartsRows'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='';});
   // Clear comment containers
@@ -2063,6 +2766,7 @@ function clearAll(){
   document.getElementById('parseSummary').style.display='none';
   document.getElementById('previewSection').style.display='none';
   document.getElementById('restoredBanner').style.display='none';
+  const _lnb=document.getElementById('loggedNotesBanner');if(_lnb)_lnb.style.display='none';
   document.getElementById('flagsContainer').innerHTML='';
   ['findingsCard','faultCard','rectCard','additionalCard','reimburseCard','deductCard','stockCard','privatePartsCard'].forEach(id=>{document.getElementById(id).style.display='none';});
   document.getElementById('savedIndicator').textContent='';
@@ -2072,27 +2776,59 @@ function clearAll(){
   jobPhotos=[];renderPhotoGrid();
   sessionInvoiceNumber=null;
   isEditingResumedJob=false;
+  resumedJobId=null;
   toast('Cleared.');
+  if(undoClearSnapshot)showUndoBanner();
 }
 document.addEventListener('input',()=>{clearTimeout(window._saveTimer);window._saveTimer=setTimeout(autosave,1500);});
 document.getElementById('jobDate').value=todayDate();
 
+// HOOK 1 — migrate existing jw_jobs records once on load (idempotent, safe to run every time).
+// jw_profiles has no legacy data to migrate, just ensure the key exists as an object.
+(function(){
+  try{
+    Store.seedFromLiveIfEmpty();                 // test build: one-time copy of live data (no-op in live)
+    // Only migrate/rewrite when a jobs store actually exists — avoids creating an empty '[]'
+    // on a fresh load, so a declined seed can be re-offered next time (and a brand-new user
+    // isn't handed a spurious empty store).
+    if(Store._raw('jw_jobs', null)!==null){
+      Store.setJobs(migrateAll(getJobs()));
+    }
+  }catch(e){console.error('Job migration failed:',e);}
+  if(!Store.hasProfiles())saveProfiles({});
+})();
+
 // ═══════════════════════════════════════════
 //  CUSTOMERS
 // ═══════════════════════════════════════════
-function getCustomers(){try{return JSON.parse(localStorage.getItem('jw_customers')||'[]');}catch(e){return[];}}
-function saveCustomer(name,mobile,email){if(!name)return;let c=getCustomers();const idx=c.findIndex(x=>x.name.toLowerCase()===name.toLowerCase());const record={name,mobile,email,lastSeen:new Date().toLocaleDateString('en-AU')};if(idx>=0)c[idx]=record;else c.unshift(record);c=c.slice(0,100);localStorage.setItem('jw_customers',JSON.stringify(c));}
+// Customers are DERIVED from jobs — single source of truth, no separate stored list. Car Guys
+// (dealership stock) is excluded: it's one payer with hundreds of one-off vehicles, not a list of
+// distinct repeat customers. Only private/cash jobs that carry a name contribute; most-recent wins.
+function deriveCustomers(){
+  const byName=new Map();
+  getJobs().forEach(j=>{
+    if(j.customerType==='carguysinspection')return;
+    const name=(j.custName||'').trim(); if(!name)return;
+    const key=name.toLowerCase(), iso=j.updatedAt||j.openedAt||'', rec=byName.get(key);
+    if(!rec){ byName.set(key,{name,mobile:j.custMobile||'',email:j.custEmail||'',_iso:iso,date:j.date||''}); }
+    else if(iso>=rec._iso){ rec._iso=iso; if(j.date)rec.date=j.date; if(j.custMobile)rec.mobile=j.custMobile; if(j.custEmail)rec.email=j.custEmail; }
+    else { if(!rec.mobile&&j.custMobile)rec.mobile=j.custMobile; if(!rec.email&&j.custEmail)rec.email=j.custEmail; }
+  });
+  return [...byName.values()].sort((a,b)=>a._iso>b._iso?-1:(a._iso<b._iso?1:0)).map(r=>({name:r.name,mobile:r.mobile,email:r.email,lastSeen:r.date||(r._iso?r._iso.slice(0,10):'')}));
+}
+function getCustomers(){ return deriveCustomers(); }
+function saveCustomer(){ /* no-op: the customer list is derived from saved jobs, not a separate store */ }
 function customerAutocomplete(input){const val=input.value.toLowerCase(),box=document.getElementById('custAutocomplete');if(!val||val.length<2){box.style.display='none';return;}const matches=getCustomers().filter(c=>c.name.toLowerCase().startsWith(val));if(!matches.length){box.style.display='none';return;}box.innerHTML=matches.slice(0,5).map(c=>`<div onclick="fillCustomer('${c.name.replace(/'/g,"\\'")}','${(c.mobile||'').replace(/'/g,"\\'")}','${(c.email||'').replace(/'/g,"\\'")}' )" style="padding:10px 14px;cursor:pointer;border-bottom:1px solid #eee;font-size:13px;" onmouseover="this.style.background='#f4f6fa'" onmouseout="this.style.background='white'"><strong>${c.name}</strong><br><span style="color:#6b7a99;font-size:11px;">${c.mobile||''} ${c.email?'· '+c.email:''}</span></div>`).join('');box.style.display='block';}
 function fillCustomer(name,mobile,email){document.getElementById('custName').value=name;document.getElementById('custMobile').value=mobile;document.getElementById('custEmail').value=email;document.getElementById('custAutocomplete').style.display='none';toast(`↩ Loaded ${name}`);}
-function showCustomers(){const customers=getCustomers(),list=document.getElementById('customersList');if(!customers.length){list.innerHTML='<p style="color:#6b7a99;text-align:center;padding:20px;">No saved customers yet.</p>';}else{list.innerHTML=customers.map(c=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee;"><div><div style="font-weight:bold;font-size:14px;color:#1a2744;">${c.name}</div><div style="font-size:12px;color:#6b7a99;">${c.mobile||'—'} · ${c.email||'—'}</div><div style="font-size:11px;color:#aaa;">Last seen: ${c.lastSeen||'—'}</div></div><div style="display:flex;gap:8px;"><button onclick="fillCustomer('${c.name.replace(/'/g,"\\'")}','${(c.mobile||'').replace(/'/g,"\\'")}','${(c.email||'').replace(/'/g,"\\'")}');closeCustomers();" style="background:#1a2744;color:white;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;">Use</button><button onclick="deleteCustomer('${c.name.replace(/'/g,"\\'")}');showCustomers();" style="background:none;border:1px solid #c0392b;color:#c0392b;border-radius:6px;padding:6px 10px;font-size:12px;cursor:pointer;">✕</button></div></div>`).join('');}document.getElementById('customersModal').style.display='block';}
-function deleteCustomer(name){let c=getCustomers().filter(x=>x.name!==name);localStorage.setItem('jw_customers',JSON.stringify(c));toast(`Removed ${name}`);}
+function showCustomers(){const customers=getCustomers(),list=document.getElementById('customersList');if(!customers.length){list.innerHTML='<p style="color:#6b7a99;text-align:center;padding:20px;">No private/cash customers yet — they appear here automatically once invoiced.</p>';}else{list.innerHTML=customers.map(c=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #eee;"><div><div style="font-weight:bold;font-size:14px;color:#1a2744;">${c.name}</div><div style="font-size:12px;color:#6b7a99;">${c.mobile||'—'} · ${c.email||'—'}</div><div style="font-size:11px;color:#aaa;">Last seen: ${c.lastSeen||'—'}</div></div><div style="display:flex;gap:8px;"><button onclick="fillCustomer('${c.name.replace(/'/g,"\\'")}','${(c.mobile||'').replace(/'/g,"\\'")}','${(c.email||'').replace(/'/g,"\\'")}');closeCustomers();" style="background:#1a2744;color:white;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;">Use</button></div></div>`).join('');}document.getElementById('customersModal').style.display='block';}
+function deleteCustomer(){ /* no-op: customer list is derived from jobs; remove the underlying job to remove a customer */ }
 function closeCustomers(){document.getElementById('customersModal').style.display='none';}
 
 // ═══════════════════════════════════════════
 //  LEGACY HISTORY
 // ═══════════════════════════════════════════
-function getHistory(){try{return JSON.parse(localStorage.getItem('jw_history')||'[]');}catch(e){return[];}}
-function saveToHistory(d,total,invoiceNumber){let h=getHistory();h.unshift({rego:d.rego,make:d.make,model:d.model,date:d.date,reportType:d.reportType,customerType:d.customerType,custName:d.custName||'',total:total,invoiceNumber:invoiceNumber||'',generatedAt:new Date().toLocaleString('en-AU')});h=h.slice(0,200);localStorage.setItem('jw_history',JSON.stringify(h));}
+function getHistory(){ return Store.getHistory(); }
+function saveToHistory(d,total,invoiceNumber){let h=getHistory();h.unshift({rego:d.rego,make:d.make,model:d.model,date:d.date,reportType:d.reportType,customerType:d.customerType,custName:d.custName||'',total:total,invoiceNumber:invoiceNumber||'',generatedAt:new Date().toLocaleString('en-AU')});h=h.slice(0,200);Store.setHistory(h);}
 
 // ═══════════════════════════════════════════
 //  BACKUP & RESTORE
@@ -2119,17 +2855,17 @@ function importBackup(event,mode){
         const incomingJobIds=new Set(incomingJobs.filter(j=>j.jobId).map(j=>j.jobId));
         const keptJobs=existingJobs.filter(j=>!incomingJobIds.has(j.jobId));
         const mergedJobs=[...incomingJobs,...keptJobs].slice(0,500);
-        localStorage.setItem('jw_jobs',JSON.stringify(mergedJobs));
+        Store.setJobs(mergedJobs);
         // History — overwrite matching by key, add new
         const existingHist=getHistory();
         const incomingHistKeys=new Set(incomingHist.map(h=>`${h.rego}|${h.date}|${h.total}|${h.generatedAt}`));
         const keptHist=existingHist.filter(h=>!incomingHistKeys.has(`${h.rego}|${h.date}|${h.total}|${h.generatedAt}`));
-        localStorage.setItem('jw_history',JSON.stringify([...incomingHist,...keptHist].slice(0,200)));
+        Store.setHistory([...incomingHist,...keptHist].slice(0,200));
         // Customers — overwrite by name, incoming wins
         const existingCust=getCustomers();
         const incomingCustNames=new Set(incomingCust.map(c=>c.name.toLowerCase()));
         const keptCust=existingCust.filter(c=>!incomingCustNames.has(c.name.toLowerCase()));
-        localStorage.setItem('jw_customers',JSON.stringify([...incomingCust,...keptCust].slice(0,100)));
+        Store.setCustomers([...incomingCust,...keptCust].slice(0,100));
         const overwrittenCount=incomingJobs.filter(j=>j.jobId&&new Set(getJobs().map(x=>x.jobId)).has(j.jobId)).length;
         mergeInvoiceCounters(backup.counters);
         toast(`✓ Overwrite complete: ${incomingJobs.length} jobs synced · ${incomingCust.length} customers updated`);
@@ -2140,12 +2876,12 @@ function importBackup(event,mode){
         const existingJobs=getJobs();
         const keptJobs=existingJobs.filter(j=>!subtractIds.has(j.jobId));
         const removedCount=existingJobs.length-keptJobs.length;
-        localStorage.setItem('jw_jobs',JSON.stringify(keptJobs));
+        Store.setJobs(keptJobs);
         // Remove matching history records too
         const subtractHistKeys=new Set(incomingHist.map(h=>`${h.rego}|${h.date}|${h.total}|${h.generatedAt}`));
         const existingHist=getHistory();
         const keptHist=existingHist.filter(h=>!subtractHistKeys.has(`${h.rego}|${h.date}|${h.total}|${h.generatedAt}`));
-        localStorage.setItem('jw_history',JSON.stringify(keptHist));
+        Store.setHistory(keptHist);
         // Customers untouched
         toast(`✓ New quarter: ${removedCount} jobs removed · ${keptJobs.length} jobs remaining`);
       }
@@ -2180,7 +2916,7 @@ function importCustomers(event){
       const incomingNames=new Set(incoming.map(c=>c.name.toLowerCase()));
       const kept=existing.filter(c=>!incomingNames.has(c.name.toLowerCase()));
       const merged=[...incoming,...kept].slice(0,100);
-      localStorage.setItem('jw_customers',JSON.stringify(merged));
+      Store.setCustomers(merged);
       const added=incoming.filter(c=>!existingNames.has(c.name.toLowerCase())).length;
       const updated=incoming.length-added;
       toast(`✓ Customers: ${added} added · ${updated} updated`);
@@ -2191,12 +2927,824 @@ function importCustomers(event){
 }
 
 // ═══════════════════════════════════════════
+//  TAB BAR + TIMESHEET SCREEN
+// ═══════════════════════════════════════════
+function switchScreen(name){
+  ['report','timesheet','payments'].forEach(s=>{
+    document.getElementById('screen'+s[0].toUpperCase()+s.slice(1)).style.display=(s===name)?'block':'none';
+    document.getElementById('tabBtn'+s[0].toUpperCase()+s.slice(1)).classList.toggle('active',s===name);
+  });
+  if(name==='timesheet'){initDayHrs();renderTimesheetScreen();}
+  if(name==='payments')renderPaymentsScreen();
+}
+
+// ─────────────────────────────────────────────
+//  DAY HOURS — Start/Finish + deductions are a written record only (per Jamie's correction —
+//  the clock itself calculates nothing). The one useful number this card produces is the gap
+//  between "elapsed time on the clock" and "hours actually logged against jobs today", so a
+//  missing chunk of the day is visible same-day instead of being a mystery at month-end.
+//  Stored under its own key, by date, separate from jw_jobs — this is a daily record, not a
+//  per-job one.
+// ─────────────────────────────────────────────
+const DAY_KEY='jw_dayhrs_v1';
+let currentDeductions=[];
+
+// TIME DROPDOWNS — replaces the native <input type="time"> entirely. step="900" on a native
+// time input is a hint, not an enforced limit — iOS Safari's wheel ignores it completely and
+// lets you scroll to any minute. Locking the actual <select> options to 00/15/30/45 is the only
+// way to genuinely restrict entry on iOS, since there's nothing to "ignore" — those are the only
+// options that exist.
+function populateTimeSelects(){
+  const hourOpts=Array.from({length:24},(_,h)=>`<option value="${String(h).padStart(2,'0')}">${String(h).padStart(2,'0')}</option>`).join('');
+  const minOpts=['00','15','30','45'].map(m=>`<option value="${m}">${m}</option>`).join('');
+  ['dayStartHour','dayEndHour'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">--</option>'+hourOpts;});
+  ['dayStartMin','dayEndMin'].forEach(id=>{const el=document.getElementById(id);if(el)el.innerHTML='<option value="">--</option>'+minOpts;});
+}
+// Keeps the hidden dayStart/dayEnd inputs in the exact "HH:MM" string shape saveDayHrs,
+// initDayHrs, and renderDayHrsResult already expect — so none of that logic needed to change.
+function syncTimeSelects(which){
+  const h=document.getElementById(`day${which}Hour`).value,m=document.getElementById(`day${which}Min`).value;
+  document.getElementById(`day${which}`).value=(h&&m)?`${h}:${m}`:'';
+  saveDayHrs();renderDayHrsResult();
+}
+function setTimeSelectsFromValue(which,value){
+  const[h,m]=(value||'').split(':');
+  document.getElementById(`day${which}Hour`).value=h||'';
+  document.getElementById(`day${which}Min`).value=m||'';
+  document.getElementById(`day${which}`).value=value||'';
+}
+// Rounds "now" to the nearest 15 minutes, rolling over the hour (and day) correctly — e.g.
+// 10:53 rounds up to 11:00, 23:53 rounds up to 00:00 the next day. Ties round down. Used only
+// to suggest a default for an EMPTY Start field — never overwrites a value that's already set.
+function nearestQuarterHourNow(){
+  const d=new Date();
+  let h=d.getHours(),m=d.getMinutes();
+  const rounded=Math.round(m/15)*15; // 60 here means "round up into the next hour"
+  if(rounded===60){h=(h+1)%24;m=0;}else{m=rounded;}
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+
+function loadDayHrs(dateStr){
+  try{const d=Store.getDayHrs();return d[dateStr]||{start:'',end:'',deductions:[]};}
+  catch(e){return{start:'',end:'',deductions:[]};}
+}
+function saveDayHrs(){
+  const dateStr=localTodayKey();
+  try{
+    const all=Store.getDayHrs();
+    all[dateStr]={start:document.getElementById('dayStart').value,end:document.getElementById('dayEnd').value,deductions:currentDeductions};
+    Store.setDayHrs(all);
+  }catch(e){console.error('Day hours save failed:',e);}
+}
+function initDayHrs(){
+  const dateStr=localTodayKey();
+  const label=document.getElementById('dayHrsDateLabel');if(label)label.textContent=todayDate();
+  populateTimeSelects();
+  const saved=loadDayHrs(dateStr);
+  // Default Start to "now" rounded to the nearest quarter hour, but ONLY if nothing's saved yet
+  // for today — same no-overwrite principle as the Labour banner. A value already on record
+  // (set earlier today, possibly on another device) is never silently replaced.
+  const startValue=saved.start||nearestQuarterHourNow();
+  setTimeSelectsFromValue('Start',startValue);
+  setTimeSelectsFromValue('End',saved.end||'');
+  if(!saved.start)saveDayHrs(); // persist the suggested default so it sticks across re-renders today
+  currentDeductions=saved.deductions||[];
+  renderDeductionsList();
+  renderDayHrsResult();
+}
+function addDeduction(hrs,label){
+  currentDeductions.push({id:Date.now(),label,hrs});
+  saveDayHrs();renderDeductionsList();renderDayHrsResult();
+}
+function removeDeduction(id){
+  currentDeductions=currentDeductions.filter(d=>d.id!==id);
+  saveDayHrs();renderDeductionsList();renderDayHrsResult();
+}
+function renderDeductionsList(){
+  const el=document.getElementById('deductionsList');if(!el)return;
+  if(!currentDeductions.length){el.innerHTML='';return;}
+  el.innerHTML=currentDeductions.map(d=>
+    `<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--red-light);border-radius:6px;margin-bottom:4px;font-size:12.5px;">
+      <span style="color:var(--red);font-weight:bold;">−${d.hrs}h</span>
+      <span style="flex:1;">${escHtml(d.label)}</span>
+      <button onclick="removeDeduction(${d.id})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:0 2px;">×</button>
+    </div>`
+  ).join('');
+}
+// Renders the On Clock / Logged Today comparison. On Clock = elapsed Start→Finish span minus
+// logged deductions (lunch/breaks) — an honest "time actually available to work" figure. This
+// number feeds nothing else in the app (no invoicing impact); Logged Today sums actual
+// timesheet[] entries across all jobs for today. The gap banner is the actual point of this card.
+function renderDayHrsResult(){
+  const s=document.getElementById('dayStart').value,e=document.getElementById('dayEnd').value;
+  const result=document.getElementById('dayHrsResult');
+  const todayStr=localTodayKey();
+  const loggedToday=getJobs().reduce((sum,j)=>sum+(j.timesheet||[]).filter(en=>{
+    const d=fixDate(en.date); // entries store DD/MM/YYYY — convert for comparison
+    const m=d.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if(!m)return false;
+    return `${m[3]}-${m[2]}-${m[1]}`===todayStr;
+  }).reduce((s2,en)=>s2+(Number(en.hours)||0),0),0);
+  if(!s||!e){
+    if(loggedToday>0){
+      result.style.display='';
+      document.getElementById('dayOnClock').textContent='—';
+      document.getElementById('dayLogged').textContent=loggedToday+'h';
+      document.getElementById('dayGapBanner').innerHTML='<div class="flag-banner" style="margin-bottom:0;">Add a start/finish time to compare against logged hours.</div>';
+    }else{
+      result.style.display='none';
+    }
+    return;
+  }
+  const [sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
+  let rawSpan=(eh*60+em-sh*60-sm)/60;
+  const totalDeducted=currentDeductions.reduce((sum,d)=>sum+(Number(d.hrs)||0),0);
+  let onClock=Math.max(0,rawSpan-totalDeducted);
+  result.style.display='';
+  document.getElementById('dayOnClock').textContent=(onClock>0?onClock.toFixed(2).replace(/\.?0+$/,''):'0')+'h';
+  document.getElementById('dayLogged').textContent=loggedToday+'h';
+  const gap=onClock-loggedToday;
+  const banner=document.getElementById('dayGapBanner');
+  if(onClock<=0){
+    banner.innerHTML='';
+  }else if(Math.abs(gap)<0.26){ // within ~15min, call it accounted for
+    banner.innerHTML='<div class="flag-banner" style="background:var(--green-light);border-color:var(--green);color:#0a4a1e;margin-bottom:0;"><strong>✓ Day accounted for</strong></div>';
+  }else if(gap>0){
+    banner.innerHTML=`<div class="flag-banner" style="margin-bottom:0;"><strong>${gap.toFixed(2).replace(/\.?0+$/,'')}h unaccounted for</strong>Logged hours don't add up to time on the clock yet.</div>`;
+  }else{
+    banner.innerHTML=`<div class="flag-banner" style="margin-bottom:0;"><strong>Logged ${Math.abs(gap).toFixed(2).replace(/\.?0+$/,'')}h more than clocked</strong>Check the entries below if that's not expected.</div>`;
+  }
+}
+
+// ─────────────────────────────────────────────
+//  LOG TIME — typing a rego with no open job auto-opens one. No separate "Start Job" step;
+//  the job record is just whatever falls out of logging time against it, matching how this
+//  actually gets used in the field.
+// ─────────────────────────────────────────────
+function tsRegoSuggest(val){
+  const box=document.getElementById('tsRegoSuggBox'),list=document.getElementById('tsRegoSuggList');
+  const up=(val||'').toUpperCase();
+  if(!up||up.length<2){box.style.display='none';return;}
+  const matches=getJobs().filter(j=>!j.closed&&j.rego&&j.rego.includes(up)).slice(0,5);
+  if(!matches.length){box.style.display='none';return;}
+  box.style.display='';
+  list.innerHTML=matches.map(j=>{
+    const summary=timesheetSummary(j);
+    const vehicle=[j.make,j.model].filter(Boolean).join(' ');
+    return `<div style="padding:9px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--grey-border);" onmousedown="document.getElementById('tsLogRego').value='${j.rego}';document.getElementById('tsRegoSuggBox').style.display='none';">
+      <strong>${escHtml(j.rego)}</strong> <span style="color:var(--text-muted);font-size:11px;">${escHtml(vehicle)}${vehicle?' · ':''}${summary.totalHours}h logged</span>
+    </div>`;
+  }).join('');
+}
+
+function logTimeEntry(){
+  const rego=(document.getElementById('tsLogRego').value||'').trim().toUpperCase();
+  const dateStr=document.getElementById('tsLogDate').value||todayDate();
+  const hours=parseFloat(document.getElementById('tsLogHours').value);
+  const note=(document.getElementById('tsLogNote').value||'').trim();
+  if(!rego){toast('Enter a rego.');return;}
+  if(!hours||hours<=0){toast('Enter hours.');return;}
+
+  const jobs=getJobs();
+  let idx=jobs.findIndex(j=>j.rego===rego&&!j.closed);
+  if(idx===-1){
+    // No unclosed job for this rego — auto-create one, same as typing a new rego straight into
+    // Log Time. This also covers the case where the existing job for this rego was already
+    // closed (invoiced) — logging more time starts a fresh job rather than silently reopening it.
+    const now=new Date().toISOString();
+    jobs.unshift({jobId:Date.now().toString(),rego,make:'',model:'',customerType:'',custName:'',custMobile:'',custEmail:'',odometer:'',status:'open',openedAt:now,updatedAt:now,timesheet:[],paid:false,paidDate:null,driveFileId:null,closed:false});
+    idx=0;
+  }
+  const entry={id:Date.now().toString()+'-'+Math.random().toString(36).slice(2,6),date:fixDate(dateStr),hours,note,createdAt:new Date().toISOString()};
+  if(!Array.isArray(jobs[idx].timesheet))jobs[idx].timesheet=[];
+  jobs[idx].timesheet.push(entry);
+  jobs[idx].updatedAt=new Date().toISOString();
+  Store.setJobs(jobs.slice(0,500));
+
+  document.getElementById('tsLogHours').value='';
+  document.getElementById('tsLogNote').value='';
+  toast(`✓ ${hours}h logged to ${rego}`);
+  renderTimesheetScreen();renderDayHrsResult();
+}
+
+// ─────────────────────────────────────────────
+//  TODAY + OPEN JOBS LISTS — same underlying open jobs, split purely by whether each has a
+//  timesheet entry dated today (local date). Nothing is "moved" between lists by any explicit
+//  action — a job just falls out of Today the moment a new local day starts and it hasn't been
+//  logged against yet. Most jobs span several days and that's expected; Today exists as the
+//  end-of-day checklist for "did I log everything I actually touched today."
+// ─────────────────────────────────────────────
+function jobHasEntryToday(job){
+  const todayStr=localTodayKey();
+  return (job.timesheet||[]).some(en=>{
+    const d=fixDate(en.date);
+    const m=d.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if(!m)return false;
+    return `${m[3]}-${m[2]}-${m[1]}`===todayStr;
+  });
+}
+
+function renderTimesheetJobRow(job){
+  const summary=timesheetSummary(job);
+  const vehicle=[job.make,job.model].filter(Boolean).join(' ')||'Vehicle TBC';
+  const entriesHtml=summary.entries.length
+    ? summary.entries.map(e=>`
+      <div class="ts-entry-row" id="tsEntryRow_${e.id}" onclick="event.stopPropagation();toggleEntryEdit('${job.jobId}','${e.id}')">
+        <span>${escHtml(fixDate(e.date))} · ${e.hours}h${e.note?' — <span class="ts-entry-note">'+escHtml(e.note)+'</span>':''}</span>
+        <button class="btn-remove" style="font-size:14px;" onclick="event.stopPropagation();deleteTimesheetEntry('${job.jobId}','${e.id}')">×</button>
+      </div>
+      <div class="ts-log-form" id="tsEntryEdit_${e.id}">
+        <div class="ts-log-grid">
+          <input type="text" id="tsEditDate_${e.id}" placeholder="DD/MM/YY" value="${escHtml(fixDate(e.date))}">
+          <input type="number" id="tsEditHours_${e.id}" placeholder="Hrs" step="0.25" min="0" value="${e.hours}">
+        </div>
+        <input type="text" id="tsEditNote_${e.id}" placeholder="Note (optional)" value="${escHtml(e.note||'')}" style="margin-bottom:8px;">
+        <div style="display:flex;gap:8px;">
+          <button class="btn-flag" style="flex:1;" onclick="event.stopPropagation();saveEntryEdit('${job.jobId}','${e.id}')">Save</button>
+          <button class="btn-flag" style="background:none;border:1.5px solid var(--grey-border);color:var(--navy);" onclick="event.stopPropagation();toggleEntryEdit('${job.jobId}','${e.id}')">Cancel</button>
+        </div>
+      </div>`).join('')
+    : '<div style="color:var(--text-muted);font-size:12px;padding:4px 0;">No hours logged yet.</div>';
+  return `
+  <div class="ts-job-row">
+    <div class="ts-job-head" onclick="toggleTimesheetLogForm('${job.jobId}')">
+      <div>
+        <div class="ts-job-rego">${escHtml(job.rego)}</div>
+        <div class="ts-job-meta">${escHtml(vehicle)}</div>
+      </div>
+      <div class="ts-job-hours">${summary.totalHours}h</div>
+    </div>
+    <div class="ts-log-form" id="tsLogForm_${job.jobId}">
+      <div style="margin-bottom:6px;">${entriesHtml}</div>
+      <button class="btn-flag" style="background:none;border:1.5px dashed var(--navy-light);color:var(--navy-light);width:100%;margin-bottom:10px;" onclick="event.stopPropagation();toggleAddRow('${job.jobId}')">+ Add Row</button>
+      <div class="ts-log-form" id="tsAddRow_${job.jobId}" style="margin-top:0;padding-top:0;border-top:none;">
+        <div class="ts-log-grid">
+          <input type="text" id="tsAddRowDate_${job.jobId}" placeholder="DD/MM/YY" value="${todayDate()}">
+          <input type="number" id="tsAddRowHours_${job.jobId}" placeholder="Hrs" step="0.25" min="0">
+        </div>
+        <input type="text" id="tsAddRowNote_${job.jobId}" placeholder="Note (optional)" style="margin-bottom:8px;">
+        <button class="btn-flag" style="width:100%;margin-bottom:10px;" onclick="event.stopPropagation();addRowEntry('${job.jobId}')">Save Row</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-flag" style="background:var(--navy-mid);flex:1;" onclick="switchScreen('report');resumeOpenJob('${job.jobId}')">Open in Report →</button>
+        <button class="btn-remove" id="tsDelBtn_${job.jobId}" style="border:1.5px solid var(--red);border-radius:6px;padding:8px 14px;font-size:12px;" onclick="event.stopPropagation();armJobDelete('${job.jobId}')">Delete</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTimesheetScreen(){
+  const dateEl=document.getElementById('tsLogDate');
+  if(dateEl&&!dateEl.value)dateEl.value=todayDate();
+  const labelEl=document.getElementById('tsTodayDateLabel');
+  if(labelEl)labelEl.textContent=todayDate();
+
+  const allOpen=getJobs().filter(j=>!j.closed).sort((a,b)=>maxStr(a.updatedAt,b.updatedAt)===a.updatedAt?1:-1);
+  const todayJobs=allOpen.filter(jobHasEntryToday);
+  const carriedJobs=allOpen.filter(j=>!jobHasEntryToday(j));
+
+  const todayBody=document.getElementById('timesheetTodayBody');
+  todayBody.innerHTML=todayJobs.length
+    ? todayJobs.map(renderTimesheetJobRow).join('')
+    : '<div style="padding:18px;color:var(--text-muted);font-size:13px;text-align:center;">Nothing logged today yet.</div>';
+
+  const openBody=document.getElementById('timesheetOpenJobsBody');
+  openBody.innerHTML=carriedJobs.length
+    ? carriedJobs.map(renderTimesheetJobRow).join('')
+    : '<div style="padding:18px;color:var(--text-muted);font-size:13px;text-align:center;">No open jobs.</div>';
+
+  // Calendar re-renders on every Timesheet screen refresh so it stays in sync with new entries.
+  renderCalendar();
+  // Same for the collapsible all-open-jobs fallback list, if it happens to already be expanded.
+  if(document.getElementById('tsAllOpenBody')?.style.display==='block')renderAllOpenJobsList();
+}
+
+// ALL OPEN JOBS — flat fallback list (same allOpen set as Today/Open Jobs above), for finding
+// a job by rego rather than by date through Calendar.
+function renderAllOpenJobsList(){
+  const body=document.getElementById('tsAllOpenBody');
+  if(!body)return;
+  const allOpen=getJobs().filter(j=>!j.closed).sort((a,b)=>maxStr(a.updatedAt,b.updatedAt)===a.updatedAt?1:-1);
+  body.innerHTML=allOpen.length
+    ? allOpen.map(renderTimesheetJobRow).join('')
+    : '<div style="padding:18px;color:var(--text-muted);font-size:13px;text-align:center;">No open jobs.</div>';
+}
+
+function reopenArchivedJob(jobId){
+  const jobs=getJobs();
+  const idx=jobs.findIndex(j=>j.jobId===jobId);
+  if(idx===-1)return;
+  jobs[idx].closed=false;
+  jobs[idx].updatedAt=new Date().toISOString();
+  Store.setJobs(jobs);
+  toast('✓ Reopened — back in Open Jobs');
+  renderTimesheetScreen();
+}
+
+// ─────────────────────────────────────────────
+//  PAYMENTS — every job with status==='invoiced' (not yet paid). Distinct from "closed":
+//  a job is closed the moment it's invoiced (Report's generate step), but it stays in this
+//  list until the money's actually confirmed in. Marking paid is monotonic (same spirit as
+//  mergeJob's existing paid handling — once true, a stale sync can't flip it back), and for
+//  Car Guys jobs also moves the PDF New→Archive in Drive, verified by gdriveMoveFile rather
+//  than assumed. The Drive move is best-effort: a failed/offline move never blocks marking the
+//  job paid locally — same "local is unconditional, Drive is best-effort" principle as generate.
+// ─────────────────────────────────────────────
+function renderPaymentsScreen(){
+  const unpaid=getJobs().filter(j=>j.status==='invoiced'&&!j.paid).sort((a,b)=>maxStr(a.updatedAt,b.updatedAt)===a.updatedAt?-1:1);
+  const total=unpaid.reduce((s,j)=>s+(parseFloat(j.invoiceTotal)||0),0);
+  document.getElementById('paymentsCount').textContent=unpaid.length;
+  document.getElementById('paymentsTotal').textContent='$'+total.toFixed(2);
+
+  const body=document.getElementById('paymentsListBody');
+  if(!unpaid.length){
+    body.innerHTML='<div style="padding:18px;color:var(--text-muted);font-size:13px;text-align:center;">Nothing outstanding.</div>';
+    return;
+  }
+  body.innerHTML=unpaid.map(job=>{
+    const custLabel=job.customerType==='carguysinspection'?'The Car Guys':(job.custName||'Private');
+    return `<div class="ts-job-row">
+      <div class="ts-job-head" style="cursor:default;">
+        <div>
+          <div class="ts-job-rego">${escHtml(job.rego)}${job.invoiceNumber?` <span style="font-size:11px;color:var(--text-muted);font-family:'Courier New',monospace;font-weight:normal;">${escHtml(job.invoiceNumber)}</span>`:''}</div>
+          <div class="ts-job-meta">${escHtml(custLabel)} · ${escHtml(job.date||'')}</div>
+        </div>
+        <div class="ts-job-hours" style="color:var(--red);">$${parseFloat(job.invoiceTotal||0).toFixed(2)}</div>
+      </div>
+      <div style="padding:0 14px 14px;">
+        <button class="btn-flag" id="payBtn_${job.jobId}" style="background:var(--green);width:100%;" onclick="armMarkPaid('${job.jobId}')">✓ Mark Paid</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Same delayed-confirm pattern as armJobDelete — a 3 second disabled countdown before the
+// button becomes a live confirm target, so a fat-fingered tap can't instantly mark something
+// paid that wasn't.
+let armedPayJobId=null,armedPayTimer=null;
+function armMarkPaid(jobId){
+  if(armedPayTimer)clearInterval(armedPayTimer);
+  armedPayJobId=jobId;
+  const btn=document.getElementById('payBtn_'+jobId);
+  if(!btn)return;
+  btn.disabled=true;
+  let secs=3;
+  btn.textContent=`Wait ${secs}s…`;
+  armedPayTimer=setInterval(()=>{
+    secs--;
+    if(secs<=0){
+      clearInterval(armedPayTimer);
+      btn.disabled=false;
+      btn.textContent='Confirm Paid';
+      btn.setAttribute('onclick',`confirmMarkPaid('${jobId}')`);
+    }else{
+      btn.textContent=`Wait ${secs}s…`;
+    }
+  },1000);
+}
+async function confirmMarkPaid(jobId){
+  if(armedPayTimer)clearInterval(armedPayTimer);
+  armedPayJobId=null;
+  const job=getJobs().find(j=>j.jobId===jobId);
+  if(!job)return;
+  patchJob(jobId,{paid:true,paidDate:new Date().toISOString().slice(0,10),status:'paid'});
+  toast('✓ Marked paid');
+  // Refresh whichever screen is actually visible — this can be triggered from Payments itself
+  // OR from Calendar's day-detail (Completed That Day), and either way the on-screen state needs
+  // to reflect the new paid status immediately, not just on next navigation.
+  if(document.getElementById('screenPayments').style.display==='block')renderPaymentsScreen();
+  if(document.getElementById('screenTimesheet').style.display==='block')renderCalendar();
+  // Car Guys only — move the PDF New→Archive. Best-effort: marking paid locally has already
+  // happened above regardless of what follows here.
+  if(job.customerType==='carguysinspection'&&job.driveFileId){
+    try{
+      const token=getGDriveToken();
+      if(!token){toast('⚠ Paid locally — connect Drive to move the invoice file');return;}
+      await gdriveMoveFile(job.driveFileId,GDRIVE_FOLDERS.carGuysNew,GDRIVE_FOLDERS.carGuysArchive,token);
+      toast('✓ Invoice moved to Archive in Drive');
+    }catch(err){
+      console.error('Drive archive move failed:',err);
+      toast('⚠ Paid locally — Drive move failed, file stays in New for now');
+    }
+  }
+}
+
+// ─────────────────────────────────────────────
+//  CALENDAR — Week → Month → Quarter zoom over logged hours. One shared date-range concept:
+//  count actual weekdays (Mon–Fri) in the selected range and multiply by 7.6h/day (38h ÷ 5) for
+//  an exact target at any zoom level, rather than using a flat "weeks × 4.33" average that would
+//  be wrong for every individual month. Week/Month/Quarter differ only in how the range is
+//  picked and how the grid renders — the metrics and breakdown table logic is identical.
+// ─────────────────────────────────────────────
+let calZoom='week';      // 'week' | 'month' | 'quarter'
+let calOffset=0;         // periods from current, in units of the current zoom
+let calSelectedDate=null; // for month view's tap-a-day detail
+
+function localDateStr(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function parseLocalDateStr(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function addDaysLocal(dateStr,n){const d=parseLocalDateStr(dateStr);d.setDate(d.getDate()+n);return localDateStr(d);}
+function weekdayName(dateStr){return['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][parseLocalDateStr(dateStr).getDay()];}
+function weekMondayLocal(dateStr){const d=parseLocalDateStr(dateStr);const day=d.getDay();const diff=(day===0)?-6:1-day;d.setDate(d.getDate()+diff);return localDateStr(d);}
+
+function setCalZoom(zoom){
+  calZoom=zoom;calOffset=0;calSelectedDate=null;
+  ['week','month','quarter'].forEach(z=>document.getElementById('tsCalZoom'+z[0].toUpperCase()+z.slice(1)).classList.toggle('active',z===zoom));
+  renderCalendar();
+}
+function navCalRange(dir){calOffset+=dir;calSelectedDate=null;renderCalendar();}
+function goToCurrentCalRange(){calOffset=0;calSelectedDate=null;renderCalendar();}
+
+// Returns {start,end} as local YYYY-MM-DD, inclusive, for the current zoom+offset.
+function getCalRange(){
+  const todayStr=localTodayKey();
+  if(calZoom==='week'){
+    const baseMon=weekMondayLocal(todayStr);
+    const start=addDaysLocal(baseMon,calOffset*7);
+    return {start,end:addDaysLocal(start,6)};
+  }
+  if(calZoom==='month'){
+    const base=parseLocalDateStr(todayStr);
+    const y=base.getFullYear(),m=base.getMonth()+calOffset;
+    const first=new Date(y,m,1),last=new Date(y,m+1,0);
+    return {start:localDateStr(first),end:localDateStr(last)};
+  }
+  // quarter
+  const base=parseLocalDateStr(todayStr);
+  const y=base.getFullYear();
+  const qStartMonth=Math.floor(base.getMonth()/3)*3+calOffset*3;
+  const first=new Date(y,qStartMonth,1),last=new Date(y,qStartMonth+3,0);
+  return {start:localDateStr(first),end:localDateStr(last)};
+}
+// Weekday count (Mon–Fri) within [start,end] inclusive — the basis for an exact target at any zoom.
+function countWeekdays(start,end){
+  let count=0,cur=start;
+  while(cur<=end){
+    const wd=parseLocalDateStr(cur).getDay();
+    if(wd>=1&&wd<=5)count++;
+    cur=addDaysLocal(cur,1);
+  }
+  return count;
+}
+function entriesInRange(start,end){
+  const out=[];
+  getJobs().forEach(j=>{
+    (j.timesheet||[]).forEach(e=>{
+      const d=fixDate(e.date);
+      const m=d.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if(!m)return;
+      const key=`${m[3]}-${m[2]}-${m[1]}`;
+      if(key>=start&&key<=end)out.push({...e,_dateKey:key,_rego:j.rego,_jobId:j.jobId,_closed:!!j.closed,_paid:!!j.paid});
+    });
+  });
+  return out;
+}
+// Returns the most recent entry date (as a normalized YYYY-MM-DD key) across a job's
+// timesheet[], or null if it has none. This is the actual anchor for "when did this job get
+// completed" — the day hours stopped being logged against it, NOT whatever date happens to sit
+// in the invoice's date field. Those two dates often coincide but don't have to: Jamie may log
+// Mon/Tue and not actually generate the invoice until Thursday — the job should read as
+// completed on Tuesday, where he'd naturally go looking for it, not Thursday.
+function lastLoggedDateKey(job){
+  let latest=null;
+  (job.timesheet||[]).forEach(e=>{
+    const d=fixDate(e.date);
+    const m=d.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if(!m)return;
+    const key=`${m[3]}-${m[2]}-${m[1]}`;
+    if(!latest||key>latest)latest=key;
+  });
+  return latest;
+}
+// Closed/invoiced jobs whose LAST logged entry date falls on dateStr — see lastLoggedDateKey
+// above for why this anchor, not the invoice's own date field. Used by the day-detail's second
+// section ("Completed That Day").
+function closedJobsOnDate(dateStr){
+  return getJobs().filter(j=>j.closed&&lastLoggedDateKey(j)===dateStr);
+}
+// PAYMENT STATUS PER DAY — Month/Quarter only (Week stays plain hours+regos, per Jamie's call —
+// a fresh week is unlikely to have anything paid yet, so the colour coding has nothing to add
+// there). Live status: reflects each job's CURRENT paid/closed state, not what was true on that
+// historical day — by design, so the calendar visibly turns green as money comes in, including
+// repainting days from weeks ago once the job touching them finally gets paid.
+// Rule table (see conversation): background = open beats everything (blue), else unpaid beats
+// paid (yellow), else all-paid (green). Border mirrors the same precedence but only considers
+// closed jobs (open jobs don't get a border opinion). Tick = a paid job is present but the
+// border isn't already green — i.e. don't let a yellow border hide that partial payment landed.
+function dayPaymentStatus(dayEntries){
+  const jobIds=new Set(dayEntries.map(e=>e._jobId));
+  if(!jobIds.size)return{background:null,border:null,tick:false};
+  const jobs=getJobs();
+  let anyOpen=false,anyUnpaidClosed=false,anyPaid=false;
+  jobIds.forEach(id=>{
+    const job=jobs.find(j=>j.jobId===id);
+    if(!job)return;
+    if(!job.closed)anyOpen=true;
+    else if(job.paid)anyPaid=true;
+    else anyUnpaidClosed=true;
+  });
+  const background=anyOpen?'blue':(anyUnpaidClosed?'yellow':'green');
+  // Border only has an opinion once at least one job here is closed; an all-open day has none.
+  let border=null;
+  if(anyUnpaidClosed||anyPaid)border=anyUnpaidClosed?'yellow':'green';
+  const tick=anyPaid&&border!=='green'; // paid progress exists but border isn't already green
+  return{background,border,tick};
+}
+
+// Small Roman numeral converter — used only for the job-count shown below each Month cell's
+// hours figure. Capped in practice by how many distinct regos realistically touch one day.
+function toRoman(num){
+  if(!num||num<1)return'';
+  const vals=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+  let out='',n=num;
+  for(const[v,s]of vals){while(n>=v){out+=s;n-=v;}}
+  return out;
+}
+function fmtHrsShort(h){
+  if(h===0)return'0h';
+  const hrs=Math.floor(h),mins=Math.round((h-hrs)*60);
+  return mins===0?hrs+'h':hrs+'h '+mins+'m';
+}
+
+function renderCalendar(){
+  const {start,end}=getCalRange();
+  const label=document.getElementById('tsCalRangeLabel');
+  if(label){
+    if(calZoom==='week')label.textContent=`${fixDate(start.split('-').reverse().join('/'))} – ${fixDate(end.split('-').reverse().join('/'))}`;
+    else if(calZoom==='month')label.textContent=parseLocalDateStr(start).toLocaleDateString('en-AU',{month:'long',year:'numeric'});
+    else{const q=Math.floor(parseLocalDateStr(start).getMonth()/3)+1;label.textContent=`Q${q} ${parseLocalDateStr(start).getFullYear()}`;}
+  }
+
+  const entries=entriesInRange(start,end);
+  const totalHrs=entries.reduce((s,e)=>s+(Number(e.hours)||0),0);
+  const workedDays=new Set(entries.map(e=>e._dateKey)).size;
+  const weekdayCount=countWeekdays(start,end);
+  const target=weekdayCount*7.6;
+  const diff=totalHrs-target;
+  const onTrack=diff>=0;
+
+  const metricsEl=document.getElementById('tsCalMetrics');
+  metricsEl.innerHTML=`
+    <div class="ts-cal-metric" style="background:var(--navy);color:white;">
+      <div style="font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.5px;">Total</div>
+      <div style="font-size:18px;font-weight:bold;">${fmtHrsShort(totalHrs)}</div>
+    </div>
+    <div class="ts-cal-metric" style="background:${onTrack?'var(--green-light)':'var(--red-light)'};">
+      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">vs ${fmtHrsShort(target)} target</div>
+      <div style="font-size:18px;font-weight:bold;color:${onTrack?'var(--green)':'var(--red)'};">${onTrack?'+':''}${fmtHrsShort(Math.abs(diff))}</div>
+      <div style="font-size:10px;color:var(--text-muted);">${onTrack?'On track':'Shortfall'}</div>
+    </div>
+    <div class="ts-cal-metric" style="grid-column:1/-1;">
+      <div style="font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Days Worked</div>
+      <div style="font-size:16px;font-weight:bold;color:var(--navy);">${workedDays} <span style="font-size:11px;color:var(--text-muted);font-weight:normal;">of ${weekdayCount} weekdays</span></div>
+    </div>`;
+
+  const gridEl=document.getElementById('tsCalGrid');
+  const detailEl=document.getElementById('tsCalDayDetail');
+  if(calZoom==='week'){
+    let html='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;">';
+    let cur=start;
+    while(cur<=end){
+      const dayEntries=entries.filter(e=>e._dateKey===cur);
+      const hrs=dayEntries.reduce((s,e)=>s+(Number(e.hours)||0),0);
+      const isToday=cur===localTodayKey();
+      const isSelected=cur===calSelectedDate;
+      const regos=[...new Set(dayEntries.map(e=>e._rego))].slice(0,3).join(', ');
+      html+=`<div class="ts-cal-day${hrs>0?' has-hours':''}${isToday?' today':''}${isSelected?' selected':''}" style="min-height:64px;" onclick="selectCalDay('${cur}')">
+        <div class="ts-cal-day-label">${weekdayName(cur)}<br>${cur.slice(8)}</div>
+        <div class="ts-cal-day-hrs${hrs===0?' zero':''}">${hrs===0?'—':fmtHrsShort(hrs)}</div>
+        ${regos?`<div style="font-size:8px;color:var(--text-muted);margin-top:2px;line-height:1.2;">${escHtml(regos)}</div>`:''}
+      </div>`;
+      cur=addDaysLocal(cur,1);
+    }
+    html+='</div>';
+    gridEl.innerHTML=html;
+    renderCalDayDetail(entries);
+  }else if(calZoom==='month'){
+    const firstDow=parseLocalDateStr(start).getDay(); // 0=Sun
+    const leadBlanks=(firstDow===0)?6:firstDow-1; // Monday-first grid
+    let html='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:9px;color:var(--text-muted);text-align:center;margin-bottom:4px;">'+['Mo','Tu','We','Th','Fr','Sa','Su'].map(d=>`<div>${d}</div>`).join('')+'</div>';
+    html+='<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;">';
+    for(let i=0;i<leadBlanks;i++)html+='<div></div>';
+    let cur=start;
+    while(cur<=end){
+      const dayEntries=entries.filter(e=>e._dateKey===cur);
+      const hrs=dayEntries.reduce((s,e)=>s+(Number(e.hours)||0),0);
+      const jobCount=new Set(dayEntries.map(e=>e._jobId)).size;
+      const isToday=cur===localTodayKey();
+      const isSelected=cur===calSelectedDate;
+      const pay=dayPaymentStatus(dayEntries);
+      const bgClass=pay.background?` pay-${pay.background}`:(hrs>0?' has-hours':'');
+      const borderClass=pay.border?` border-${pay.border}`:'';
+      html+=`<div class="ts-cal-day${bgClass}${borderClass}${isToday?' today':''}${isSelected?' selected':''}" style="min-height:42px;padding:4px 2px;" onclick="selectCalDay('${cur}')">
+        ${pay.tick?'<span class="ts-cal-day-tick">✓</span>':''}
+        <div class="ts-cal-day-label">${cur.slice(8)}</div>
+        <div class="ts-cal-day-hrs${hrs===0?' zero':''}" style="font-size:10px;">${hrs===0?'—':fmtHrsShort(hrs)}</div>
+        ${jobCount>0?`<div style="font-size:8px;color:var(--text-muted);margin-top:1px;">${toRoman(jobCount)}</div>`:''}
+      </div>`;
+      cur=addDaysLocal(cur,1);
+    }
+    html+='</div>';
+    gridEl.innerHTML=html;
+    renderCalDayDetail(entries);
+  }else{
+    // quarter — month-by-month totals, no per-day grid
+    detailEl.innerHTML='';
+    const months=[];
+    let cur=parseLocalDateStr(start);
+    for(let i=0;i<3;i++){
+      const y=cur.getFullYear(),m=cur.getMonth()+i;
+      const mFirst=localDateStr(new Date(y,m,1)),mLast=localDateStr(new Date(y,m+1,0));
+      const mEntries=entries.filter(e=>e._dateKey>=mFirst&&e._dateKey<=mLast);
+      months.push({label:new Date(y,m,1).toLocaleDateString('en-AU',{month:'long'}),hrs:mEntries.reduce((s,e)=>s+(Number(e.hours)||0),0),days:new Set(mEntries.map(e=>e._dateKey)).size,pay:dayPaymentStatus(mEntries)});
+    }
+    const payColour={blue:'var(--navy-light)',yellow:'#e8a020',green:'var(--green)'};
+    gridEl.innerHTML=months.map(mo=>{
+      const borderCol=mo.pay.border?payColour[mo.pay.border]:(mo.pay.background?payColour[mo.pay.background]:'transparent');
+      return `<div class="ts-cal-month-row" style="border-left:4px solid ${borderCol};padding-left:10px;"><span style="font-weight:bold;color:var(--navy);">${mo.label}${mo.pay.tick?' <span style="color:var(--green);font-size:11px;">✓</span>':''}</span><span style="color:var(--text-muted);font-size:12px;">${mo.days} days</span><span style="font-weight:bold;">${fmtHrsShort(mo.hrs)}</span></div>`;
+    }).join('');
+  }
+
+  // Breakdown table — shared across all three zoom levels, scoped to whichever range is active.
+  const breakdownEl=document.getElementById('tsCalBreakdown');
+  if(!entries.length){breakdownEl.innerHTML='<div style="padding:14px;color:var(--text-muted);font-size:12px;text-align:center;">No hours logged in this range.</div>';return;}
+  const byRego={};
+  entries.forEach(e=>{if(!byRego[e._rego])byRego[e._rego]={hrs:0,days:new Set()};byRego[e._rego].hrs+=Number(e.hours)||0;byRego[e._rego].days.add(e._dateKey);});
+  const sorted=Object.entries(byRego).sort((a,b)=>b[1].hrs-a[1].hrs);
+  breakdownEl.innerHTML=sorted.map(([rego,info])=>`<div class="ts-cal-month-row"><span style="font-weight:bold;color:var(--navy);">${escHtml(rego)}</span><span style="color:var(--text-muted);font-size:12px;">${info.days.size}d</span><span style="font-weight:bold;">${fmtHrsShort(info.hrs)}</span></div>`).join('');
+}
+
+function selectCalDay(dateStr){
+  calSelectedDate=(calSelectedDate===dateStr)?null:dateStr;
+  renderCalendar();
+}
+// Shared day-detail panel — used by both Week and Month zoom (Quarter has no day concept, so it
+// doesn't call this at all). Two sections: hours entries logged that day (dimmed/italic once
+// their owning job has since closed — the job isn't finished AS OF that day, it just looks back
+// at it that way now), and completed jobs whose own date field lands on this exact day. A job
+// spanning Mon/Wed/Fri shows dimmed entries on Mon and Wed, and the real invoice — number, $,
+// View/Edit, Delete — only on whichever day matches its date field (typically Friday, the day
+// it was actually generated, since edits don't move that field unless deliberately changed).
+function renderCalDayDetail(entries){
+  const el=document.getElementById('tsCalDayDetail');
+  if(!calSelectedDate){el.innerHTML='';return;}
+  const dateLabel=fixDate(calSelectedDate.split('-').reverse().join('/'));
+  const dayEntries=entries.filter(e=>e._dateKey===calSelectedDate);
+  const completedJobs=closedJobsOnDate(calSelectedDate);
+
+  // Distinct OPEN jobs touching this day — rendered via the exact same renderTimesheetJobRow
+  // used by Open Jobs, so tap-to-expand/edit-entry/Add Row/Open in Report/Delete all work
+  // identically here. Each row shows that job's FULL entry history (not just this day's entry),
+  // same as Open Jobs already does — you're looking at the job, not a day-filtered slice of it.
+  const openJobIds=[...new Set(dayEntries.filter(e=>!e._closed).map(e=>e._jobId))];
+  const openJobsToday=openJobIds.map(id=>getJobs().find(j=>j.jobId===id)).filter(Boolean);
+
+  let html=`<div class="notes-hint" style="margin-bottom:6px;">${dateLabel}</div>`;
+  if(!openJobsToday.length&&!completedJobs.length){
+    html+='<div style="color:var(--text-muted);font-size:12px;padding:4px 0 10px;">Nothing logged or completed.</div>';
+    el.innerHTML=html;
+    return;
+  }
+  if(openJobsToday.length){
+    html+=openJobsToday.map(renderTimesheetJobRow).join('');
+  }
+  if(completedJobs.length){
+    html+=`<div class="notes-hint" style="margin-top:12px;margin-bottom:6px;">COMPLETED THAT DAY</div>`;
+    html+=completedJobs.map(job=>{
+      const vehicle=[job.make,job.model].filter(Boolean).join(' ');
+      const custLabel=job.customerType==='carguysinspection'?'The Car Guys':(job.custName||'Private');
+      return `<div class="ts-cal-completed-job">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <div>
+            <div style="font-weight:bold;color:var(--navy);font-size:13px;">${job.invoiceNumber?`<span style="font-family:'Courier New',monospace;font-size:11px;color:var(--text-muted);margin-right:5px;">${escHtml(job.invoiceNumber)}</span>`:''}${escHtml(job.rego)} ${escHtml(vehicle)}</div>
+            <div style="font-size:11px;color:var(--text-muted);">${escHtml(custLabel)}</div>
+          </div>
+          <div style="font-weight:bold;color:${job.paid?'var(--green)':'var(--navy)'};">$${parseFloat(job.invoiceTotal||0).toFixed(2)}${job.paid?' ✓':''}</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-flag" style="flex:1;background:var(--navy-mid);font-size:11px;padding:6px;" onclick="switchScreen('report');resumeOpenJob('${job.jobId}')">↩ View / Edit</button>
+          <button class="btn-remove" style="font-size:11px;padding:6px 10px;border:1.5px solid var(--red);border-radius:6px;" onclick="deleteJob('${job.jobId}');renderCalendar();">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  el.innerHTML=html;
+}
+
+function toggleTimesheetLogForm(jobId){
+  document.querySelectorAll('.ts-log-form').forEach(el=>{
+    if(el.id===`tsLogForm_${jobId}`)el.classList.toggle('open');
+    else el.classList.remove('open');
+  });
+}
+
+function deleteTimesheetEntry(jobId,entryId){
+  if(!Store.mutateJob(jobId,job=>{ job.timesheet=(job.timesheet||[]).filter(e=>e.id!==entryId); }))return;
+  renderTimesheetScreen();renderDayHrsResult();
+  setTimeout(()=>document.getElementById(`tsLogForm_${jobId}`)?.classList.add('open'),0);
+}
+
+// EDIT ENTRY — tapping a logged entry (not its × delete) opens an inline edit form for that
+// one entry: date, hours, note. Fixes a typo or wrong value in place rather than delete-and-relog.
+// Does not move an entry between jobs/regos — only ever edits fields on the entry where it
+// already sits.
+function toggleEntryEdit(jobId,entryId){
+  const form=document.getElementById(`tsEntryEdit_${entryId}`);
+  if(!form)return;
+  // Close any other open entry-edit forms first, same single-open pattern as the per-job log form.
+  document.querySelectorAll('[id^="tsEntryEdit_"]').forEach(el=>{if(el!==form)el.classList.remove('open');});
+  form.classList.toggle('open');
+}
+function saveEntryEdit(jobId,entryId){
+  const dateEl=document.getElementById(`tsEditDate_${entryId}`),hoursEl=document.getElementById(`tsEditHours_${entryId}`),noteEl=document.getElementById(`tsEditNote_${entryId}`);
+  const hours=parseFloat(hoursEl.value);
+  if(!hours||hours<=0){toast('Enter hours.');return;}
+  const res=Store.mutateJob(jobId,job=>{
+    const eIdx=(job.timesheet||[]).findIndex(e=>e.id===entryId);
+    if(eIdx===-1)return false;   // entry gone — abort the write
+    job.timesheet[eIdx]={...job.timesheet[eIdx],date:fixDate(dateEl.value||todayDate()),hours,note:(noteEl.value||'').trim()};
+  });
+  if(!res){toast('Entry not found.');return;}
+  toast('✓ Entry updated');
+  renderTimesheetScreen();renderDayHrsResult();
+  setTimeout(()=>document.getElementById(`tsLogForm_${jobId}`)?.classList.add('open'),0);
+}
+
+// ADD ROW — inline entry-add inside an already-expanded job, so a quick correction or a second
+// entry doesn't require leaving the row to use the separate Log Time form up top.
+function toggleAddRow(jobId){
+  const form=document.getElementById(`tsAddRow_${jobId}`);
+  if(!form)return;
+  form.classList.toggle('open');
+}
+function addRowEntry(jobId){
+  const dateEl=document.getElementById(`tsAddRowDate_${jobId}`),hoursEl=document.getElementById(`tsAddRowHours_${jobId}`),noteEl=document.getElementById(`tsAddRowNote_${jobId}`);
+  const hours=parseFloat(hoursEl.value);
+  if(!hours||hours<=0){toast('Enter hours.');return;}
+  const entry={id:Date.now().toString()+'-'+Math.random().toString(36).slice(2,6),date:fixDate(dateEl.value||todayDate()),hours,note:(noteEl.value||'').trim(),createdAt:new Date().toISOString()};
+  if(!Store.mutateJob(jobId,job=>{ if(!Array.isArray(job.timesheet))job.timesheet=[]; job.timesheet.push(entry); })){toast('Job not found.');return;}
+  toast(`✓ ${hours}h added`);
+  renderTimesheetScreen();renderDayHrsResult();
+  setTimeout(()=>document.getElementById(`tsLogForm_${jobId}`)?.classList.add('open'),0);
+}
+
+// DELAYED DELETE — tap once arms a 3-second countdown on the button itself (disabled, showing
+// the count); only after it elapses does the button become a live "Confirm Delete" tap target.
+// Tapping elsewhere or re-rendering the list cancels the arm. Guards against a fat-fingered tap
+// immediately wiping a job and its logged hours.
+let armedDeleteJobId=null,armedDeleteTimer=null;
+function armJobDelete(jobId){
+  if(armedDeleteTimer)clearInterval(armedDeleteTimer);
+  armedDeleteJobId=jobId;
+  const btn=document.getElementById(`tsDelBtn_${jobId}`);
+  if(!btn)return;
+  btn.disabled=true;
+  let secs=3;
+  btn.textContent=`Wait ${secs}s…`;
+  armedDeleteTimer=setInterval(()=>{
+    secs--;
+    if(secs<=0){
+      clearInterval(armedDeleteTimer);
+      btn.disabled=false;
+      btn.textContent='Confirm Delete';
+      btn.style.background='var(--red)';btn.style.color='white';
+      btn.setAttribute('onclick',`event.stopPropagation();confirmJobDelete('${jobId}')`);
+    }else{
+      btn.textContent=`Wait ${secs}s…`;
+    }
+  },1000);
+}
+function confirmJobDelete(jobId){
+  if(armedDeleteTimer)clearInterval(armedDeleteTimer);
+  armedDeleteJobId=null;
+  const jobs=getJobs().filter(j=>j.jobId!==jobId);
+  Store.setJobs(jobs);
+  toast('Job deleted.');
+  renderTimesheetScreen();renderDayHrsResult();
+}
+
+// Opens a bare/open job in the Report tab — same restoreJob() path used by Job History, so it
+// correctly sets resumedJobId and the rest of the field-population logic is reused as-is. The
+// difference from a normal resume is this record may have most fields blank (make/model/customer
+// never filled in yet) since it started life from just a rego in the Timesheet tab.
+function resumeOpenJob(jobId){
+  restoreJob(jobId);
+}
+
+// ═══════════════════════════════════════════
 //  MENU & MODALS
 // ═══════════════════════════════════════════
-function toggleMenu(){const menu=document.getElementById('dropdownMenu');menu.style.display=menu.style.display==='none'?'block':'none';}
+function toggleMenu(){const menu=document.getElementById('dropdownMenu');const opening=menu.style.display==='none';menu.style.display=opening?'block':'none';if(opening)loadUndoClearSetting();}
 document.addEventListener('click',function(e){if(!e.target.closest('#dropdownMenu')&&!e.target.closest('#menuBtn'))document.getElementById('dropdownMenu').style.display='none';if(!e.target.closest('#custAutocomplete')&&e.target.id!=='custName'){const box=document.getElementById('custAutocomplete');if(box)box.style.display='none';}});
 document.getElementById('historyModal').addEventListener('click',function(e){if(e.target===this)closeHistory();});
 document.getElementById('customersModal').addEventListener('click',function(e){if(e.target===this)closeCustomers();});
+
+// Timesheet is the default screen on load (per Jamie — it's what gets checked first/last in the
+// day). Placed here, at the true end of the script, because initDayHrs/renderTimesheetScreen
+// depend on const/let declarations (DAY_KEY, currentDeductions) further down the file than
+// hook 1 — those aren't hoisted the way function declarations are, so calling this too early
+// throws a "cannot access before initialization" error.
+initDayHrs();
+renderTimesheetScreen();
 </script>
 </body>
 </html>
